@@ -1,0 +1,11 @@
+{
+  "sections": {
+    "main": {
+      "type": "delta-bravo-ulaw",
+      "settings": {}
+    }
+  },
+  "order": [
+    "main"
+  ]
+}

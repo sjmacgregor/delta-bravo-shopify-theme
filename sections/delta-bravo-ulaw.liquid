@@ -1,0 +1,199 @@
+{% liquid
+  assign active_product = product
+  if active_product == blank
+    assign active_product = section.settings.base_product
+  endif
+  if active_product == blank
+    assign active_product = collections.all.products.first
+  endif
+  assign active_variant_id = active_product.selected_or_first_available_variant.id | default: 0
+%}
+
+<div class="db-shopify-wrapper" data-shopify-variant-id="{{ active_variant_id }}">
+  <!-- TOP CORNER LOGO + CART -->
+  <header class="db-header">
+    <a class="db-logo" id="db-logo" href="#home" aria-label="DELTA BRAVO Home">
+      <img class="db-logo__img" src="{{ 'delta-bravo-logo-sm.png' | asset_url }}" alt="DELTA BRAVO" />
+      <span class="db-logo__name">DELTA BRAVO</span>
+    </a>
+
+    <button type="button" class="db-cart-btn" id="db-cart-btn">
+      <span>Cart</span>
+      <span class="db-cart-btn__count" id="db-cart-count">{{ cart.item_count | default: 0 }}</span>
+    </button>
+  </header>
+
+  <!-- VIEW 1: HOME PAGE (LOGO + SEARCH BAR + FLOATING STREAM) -->
+  <main class="db-view is-visible" id="view-home">
+    <div class="db-home">
+      <!-- Centered ULAW Logo above the search bar (Delta Bravo Navy, Slate, Gold) -->
+      <div class="db-home-logo" aria-label="ULAW">
+        <svg class="db-home-logo__svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 390 88" width="390" height="88" fill="none" role="img" aria-label="ULAW Holster Logo">
+          <defs>
+            <linearGradient id="dbNavy" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#253549"/>
+              <stop offset="100%" stop-color="#182332"/>
+            </linearGradient>
+            <linearGradient id="dbSlate" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#6C839C"/>
+              <stop offset="100%" stop-color="#4B5E73"/>
+            </linearGradient>
+            <linearGradient id="dbGold" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#D8C28E"/>
+              <stop offset="100%" stop-color="#B59858"/>
+            </linearGradient>
+          </defs>
+          <g id="ulaw-letters" fill="url(#dbNavy)">
+            <path d="M16 8 H35 V48 C35 57 42 62 52 62 C62 62 69 57 69 48 V8 H88 V48 C88 68 72 80 52 80 C32 80 16 68 16 48 Z"/>
+            <path d="M106 8 H125 V61 H166 V80 H106 Z"/>
+            <path d="M212 8 L182 80 H204 L210 63 H238 L244 80 H266 L236 8 H212ZM224 28 L232 50 H216 L224 28Z"/>
+            <path d="M282 8 L297 80 H315 L327 40 L339 80 H357 L372 8 H352 L344 54 L333 20 H321 L310 54 L302 8 Z"/>
+          </g>
+          <path id="ulaw-wave-spring" d="M52 14 C52 24 61 26 61 33 C61 40 43 42 43 49 C43 54 48 57 52 57" stroke="url(#dbSlate)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          <polygon id="ulaw-delta-apex" points="224,9 216,23 232,23" fill="url(#dbGold)"/>
+        </svg>
+      </div>
+
+      <!-- Search Bar above stream images -->
+      <div class="db-search-wrap" id="db-search-wrap">
+        <form class="db-search-form" id="db-search-form" role="search" autocomplete="off">
+          <span class="db-search-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </span>
+          <input
+            type="text"
+            id="db-search-input"
+            class="db-search-input"
+            placeholder="Search tool, brand, model, or part #..."
+            aria-label="Search tool, brand, model, or part number"
+            autofocus
+          />
+          <button type="button" class="db-search-clear" id="db-search-clear" aria-label="Clear">✕</button>
+          <button type="submit" class="db-search-submit" id="db-search-submit" disabled>Search</button>
+        </form>
+
+        <div class="db-autocomplete" id="db-autocomplete" role="listbox"></div>
+      </div>
+
+      <!-- Moving Stream Images below the search bar -->
+      <div class="db-stream" id="db-stream" aria-label="ULAW Holster stream">
+        <div class="db-stream__track" id="db-stream-track">
+          <div class="db-stream__item" data-tool-id="wera-kraftform-ph2-125"><img class="db-stream__img" src="{{ 'stream-screwdrivers-100x30.png' | asset_url }}" alt="Screwdrivers in 100X30 ULAW Holster" /></div>
+          <div class="db-stream__item" data-tool-id="knipex-cobra-180"><img class="db-stream__img" src="{{ 'stream-pliers-100x60.png' | asset_url }}" alt="Knipex Pliers in 100X60 ULAW Holster" /></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- VIEW 2: ULAW HOLSTER PRODUCT PAGE -->
+  <section class="db-view" id="view-product">
+    <div class="db-product">
+      <button type="button" class="db-back-btn" id="db-back-btn">
+        &larr; Search
+      </button>
+
+      <div class="db-product-grid">
+        <div class="db-media-col">
+          <div class="db-image-card">
+            <img id="db-product-img" class="db-image-card__img" src="{{ 'milwaukee-pliers-ulaw.jpg' | asset_url }}" alt="Tool in ULAW Holster" />
+          </div>
+          <div class="db-thumbs" id="db-thumbs" aria-label="Product photos"></div>
+        </div>
+
+        <div class="db-config-card">
+          <div class="db-product-header">
+            <h1 class="db-product-title">ULAW Holster</h1>
+            <span class="db-product-price" id="db-product-price">$34</span>
+          </div>
+
+          <div class="db-field">
+            <label class="db-label" for="db-select-brand">Brand</label>
+            <select id="db-select-brand" class="db-select"></select>
+          </div>
+
+          <div class="db-field">
+            <label class="db-label" for="db-select-model">Model</label>
+            <select id="db-select-model" class="db-select"></select>
+          </div>
+
+          <div class="db-field">
+            <div class="db-field-header">
+              <label class="db-label" for="db-select-pouch">Mag Pouch Size</label>
+              <span class="db-badge-optional">Optional</span>
+            </div>
+            <select id="db-select-pouch" class="db-select"></select>
+          </div>
+
+          <button type="button" class="db-add-btn" id="db-add-btn">
+            Add to Cart
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CART DRAWER -->
+  <div class="db-backdrop" id="db-backdrop"></div>
+  <aside class="db-drawer" id="db-drawer" aria-label="Cart">
+    <div class="db-drawer__head">
+      <span>Cart</span>
+      <button type="button" class="db-drawer__close" id="db-drawer-close">✕</button>
+    </div>
+    <div class="db-drawer__list" id="db-cart-list"></div>
+    <div class="db-drawer__foot">
+      <div class="db-drawer__total">
+        <span>Total</span>
+        <span id="db-cart-total">$0</span>
+      </div>
+      <button type="button" class="db-checkout-btn">Checkout</button>
+    </div>
+  </aside>
+</div>
+
+<script>
+  window.SHOPIFY_VARIANT_ID = {{ active_variant_id | json }};
+  window.ULAW_ASSET_URLS = {
+    "delta-bravo-logo-sm.png": {{ "delta-bravo-logo-sm.png" | asset_url | json }},
+    "delta-bravo-logo.png": {{ "delta-bravo-logo.png" | asset_url | json }},
+    "knife-holster.jpg": {{ "knife-holster.jpg" | asset_url | json }},
+    "knipex-pliers-ulaw.jpg": {{ "knipex-pliers-ulaw.jpg" | asset_url | json }},
+    "marker-holster.jpg": {{ "marker-holster.jpg" | asset_url | json }},
+    "milwaukee-pliers-ulaw.jpg": {{ "milwaukee-pliers-ulaw.jpg" | asset_url | json }},
+    "multitool-holster.jpg": {{ "multitool-holster.jpg" | asset_url | json }},
+    "pica-dry-ulaw.jpg": {{ "pica-dry-ulaw.jpg" | asset_url | json }},
+    "pliers-holster.jpg": {{ "pliers-holster.jpg" | asset_url | json }},
+    "scissors-125x30-ulaw.jpg": {{ "scissors-125x30-ulaw.jpg" | asset_url | json }},
+    "screwdriver-holster.jpg": {{ "screwdriver-holster.jpg" | asset_url | json }},
+    "stream-pliers-100x60.png": {{ "stream-pliers-100x60.png" | asset_url | json }},
+    "stream-screwdrivers-100x30.png": {{ "stream-screwdrivers-100x30.png" | asset_url | json }},
+    "tapemeasure-holster.jpg": {{ "tapemeasure-holster.jpg" | asset_url | json }},
+    "ulaw-logo.png": {{ "ulaw-logo.png" | asset_url | json }},
+    "ulaw-logo.svg": {{ "ulaw-logo.svg" | asset_url | json }},
+    "ulaw-side-profile.jpg": {{ "ulaw-side-profile.jpg" | asset_url | json }}
+  };
+</script>
+<script src="{{ 'ulaw-catalog.js' | asset_url }}" defer></script>
+<script src="{{ 'ulaw-app.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "DELTA BRAVO ULAW Store",
+  "tag": "section",
+  "class": "section-delta-bravo-ulaw",
+  "settings": [
+    {
+      "type": "product",
+      "id": "base_product",
+      "label": "ULAW Holster Product"
+    }
+  ],
+  "presets": [
+    {
+      "name": "DELTA BRAVO ULAW Store"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="{{ request.locale.iso_code | default: 'en' }}">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{{ page_title | default: 'DELTA BRAVO — ULAW Holster' }}</title>
+  {% if page_description %}
+    <meta name="description" content="{{ page_description | escape }}">
+  {% else %}
+    <meta name="description" content="DELTA BRAVO — Find a custom ULAW tool holster by tool type, brand, model, or product number.">
+  {% endif %}
+  <link rel="icon" type="image/png" href="{{ 'delta-bravo-logo-sm.png' | asset_url }}">
+  {{ 'ulaw-store.css' | asset_url | stylesheet_tag }}
+  {{ content_for_header }}
+</head>
+<body>
+  {{ content_for_layout }}
+</body>
+</html>

@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 390 88" width="390" height="88" fill="none">
+  <defs>
+    <!-- Delta Bravo Brand Gradients: Midnight Navy, Slate Steel Blue, Coyote Gold -->
+    <linearGradient id="dbNavy" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#253549"/>
+      <stop offset="100%" stop-color="#182332"/>
+    </linearGradient>
+    <linearGradient id="dbSlate" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#6C839C"/>
+      <stop offset="100%" stop-color="#4B5E73"/>
+    </linearGradient>
+    <linearGradient id="dbGold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#D8C28E"/>
+      <stop offset="100%" stop-color="#B59858"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Letters in Delta Bravo Midnight Navy -->
+  <g id="ulaw-letters" fill="url(#dbNavy)">
+    <!-- U -->
+    <path d="M16 8 H35 V48 C35 57 42 62 52 62 C62 62 69 57 69 48 V8 H88 V48 C88 68 72 80 52 80 C32 80 16 68 16 48 Z"/>
+    <!-- L -->
+    <path d="M106 8 H125 V61 H166 V80 H106 Z"/>
+    <!-- A -->
+    <path d="M212 8 L182 80 H204 L210 63 H238 L244 80 H266 L236 8 H212ZM224 28 L232 50 H216 L224 28Z"/>
+    <!-- W -->
+    <path d="M282 8 L297 80 H315 L327 40 L339 80 H357 L372 8 H352 L344 54 L333 20 H321 L310 54 L302 8 Z"/>
+  </g>
+
+  <!-- ULAW Wave-Spring Flexure in Delta Slate Steel Blue -->
+  <path id="ulaw-wave-spring" d="M52 14 C52 24 61 26 61 33 C61 40 43 42 43 49 C43 54 48 57 52 57" stroke="url(#dbSlate)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+  <!-- Delta Triangle Apex Accent in Delta Bravo Coyote Gold -->
+  <polygon id="ulaw-delta-apex" points="224,9 216,23 232,23" fill="url(#dbGold)"/>
+</svg>
