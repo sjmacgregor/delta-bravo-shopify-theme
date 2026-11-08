@@ -40,7 +40,7 @@ window.ULAW_CATALOG = (function () {
       name: '30 mm Divided (15/15 Dual Narrow)',
       shortCode: '30 (15/15)',
       desc: 'Holds two 15 mm (14.4 mm) clamps in one 30 mm pouch with 1.0 mm bullnose divider',
-      priceDelta: 6,
+      priceDelta: 0,
       nominalWidth: 30,
       actualClampWidth: 14.4,
       outerChannelWidth: 35.0,
@@ -55,7 +55,7 @@ window.ULAW_CATALOG = (function () {
       name: '60 mm Double Rifle Mag Pouch',
       shortCode: '24×60 STD',
       desc: 'Standard 60 mm AR/rifle mag pouch channel (fits wide tools or multi-lane clamps)',
-      priceDelta: 6,
+      priceDelta: 0,
       nominalWidth: 60,
       actualClampWidth: 60.0,
       outerChannelWidth: 64.0,
@@ -69,7 +69,7 @@ window.ULAW_CATALOG = (function () {
       name: '60 mm Divided (30/30 Dual Standard)',
       shortCode: '60 (30/30)',
       desc: 'Holds two standard 30.0 mm clamps side-by-side with 1.0 mm bullnose divider (66.2 mm outer)',
-      priceDelta: 10,
+      priceDelta: 0,
       nominalWidth: 60,
       actualClampWidth: 30.0,
       outerChannelWidth: 66.2,
@@ -84,7 +84,7 @@ window.ULAW_CATALOG = (function () {
       name: '60 mm Divided (45/15 Combo)',
       shortCode: '60 (45/15)',
       desc: 'Holds one 45 mm (44.4 mm) clamp + one 15 mm (14.4 mm) narrow clamp (65.0 mm outer)',
-      priceDelta: 10,
+      priceDelta: 0,
       nominalWidth: 60,
       actualClampWidth: 44.4,
       outerChannelWidth: 65.0,
@@ -99,7 +99,7 @@ window.ULAW_CATALOG = (function () {
       name: '60 mm Divided (3×20 Triple Tool)',
       shortCode: '60 (3×20)',
       desc: 'Holds three 20 mm (19.4 mm) clamps separated by two 1.0 mm bullnose dividers (66.0 mm outer)',
-      priceDelta: 12,
+      priceDelta: 0,
       nominalWidth: 60,
       actualClampWidth: 19.4,
       outerChannelWidth: 66.0,
@@ -114,7 +114,7 @@ window.ULAW_CATALOG = (function () {
       name: '60 mm Divided (4×15 Quad Narrow)',
       shortCode: '60 (4×15)',
       desc: 'Holds four 15 mm (14.4 mm) clamps separated by three 1.0 mm bullnose dividers (67.0 mm outer)',
-      priceDelta: 14,
+      priceDelta: 0,
       nominalWidth: 60,
       actualClampWidth: 14.4,
       outerChannelWidth: 67.0,
@@ -129,7 +129,7 @@ window.ULAW_CATALOG = (function () {
       name: 'Direct MOLLE / Belt Mount (No Pouch)',
       shortCode: 'MOLLE WEAVE',
       desc: 'Integrated 60° HSGI clip weave / PALS cable-tie back wall for direct vest or battle-belt mounting',
-      priceDelta: 8,
+      priceDelta: 0,
       nominalWidth: null,
       slots: 1,
       dividerMm: 0,
@@ -141,7 +141,7 @@ window.ULAW_CATALOG = (function () {
       name: 'Clamp Insert Only (Swap Into Channel)',
       shortCode: 'CLAMP ONLY',
       desc: 'Universal y = -6.50 mm mid-base snap arc swaps into any ULAW channel of matching height',
-      priceDelta: -12,
+      priceDelta: 0,
       nominalWidth: null,
       slots: 1,
       dividerMm: 0,
@@ -1153,11 +1153,24 @@ window.ULAW_CATALOG = (function () {
       ? `${channelHeight}X${channelWidth}X${tool.defaultClampDepth}`
       : `${channelHeight}X${channelWidth}`;
 
-    // Dynamic Price
+    // Dynamic Price strictly based on Channel Dimensions:
+    // 30x100 is $5
+    // 30x125 and 30x150 is $5.50
+    // 60x100 is $7
+    // 60x125 and 150 is $8
+    function getHolsterPrice(width, height) {
+      const w = parseInt(width, 10) || 30;
+      const h = parseInt(height, 10) || 125;
+      if (w <= 30) {
+        return h <= 100 ? 5.00 : 5.50;
+      } else {
+        return h <= 100 ? 7.00 : 8.00;
+      }
+    }
     const effectivePouchForPrice = pouch.id === 'auto'
       ? (MAG_POUCH_OPTIONS.find(p => p.id === tool.recommendedPouch) || pouch)
       : pouch;
-    const unitPrice = +(tool.basePrice + (effectivePouchForPrice.priceDelta || 0) + (markStyle === 'inlay' ? 0 : -2)).toFixed(2);
+    const unitPrice = getHolsterPrice(channelWidth, channelHeight);
 
     // Active stability & special features summary
     const features = [];

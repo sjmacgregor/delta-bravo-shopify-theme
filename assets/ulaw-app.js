@@ -44,6 +44,12 @@
       .replace(/"/g, '&quot;');
   }
 
+  function formatPrice(val) {
+    const num = Number(val);
+    if (isNaN(num)) return '$0';
+    return num % 1 === 0 ? `$${num.toFixed(0)}` : `$${num.toFixed(2)}`;
+  }
+
   function escapeRegExp(str) {
     return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   }
@@ -212,7 +218,7 @@
     // Price
     const priceEl = document.getElementById('db-product-price');
     if (priceEl) {
-      priceEl.textContent = `$${cfg.unitPrice.toFixed(0)}`;
+      priceEl.textContent = formatPrice(cfg.unitPrice);
     }
 
     // Brand Selector (Auto-populated)
@@ -310,7 +316,7 @@
     if (countEl) countEl.textContent = count;
 
     const totalEl = document.getElementById('db-cart-total');
-    if (totalEl) totalEl.textContent = `$${total.toFixed(0)}`;
+    if (totalEl) totalEl.textContent = formatPrice(total);
 
     const listEl = document.getElementById('db-cart-list');
     if (!listEl) return;
@@ -324,7 +330,7 @@
       <div class="db-cart-row">
         <img class="db-cart-row__img" src="${item.image}" alt="${escapeHtml(item.model)}">
         <div class="db-cart-row__info">
-          <div class="db-cart-row__title">${escapeHtml(item.title)} — $${(item.price * item.qty).toFixed(0)}</div>
+          <div class="db-cart-row__title">${escapeHtml(item.title)} — ${formatPrice(item.price * item.qty)}</div>
           <div class="db-cart-row__meta">${escapeHtml(item.brand)} ${escapeHtml(item.model)} (#${escapeHtml(item.mpn)})</div>
           <div class="db-cart-row__meta">${escapeHtml(item.pouch)} · Qty ${item.qty}</div>
         </div>
