@@ -7,15 +7,16 @@ window.ULAW_CATALOG = (function () {
   function __dbAsset(file) {
     return (window.ULAW_ASSET_URLS && window.ULAW_ASSET_URLS[file]) ? window.ULAW_ASSET_URLS[file] : ('assets/images/' + file);
   }
-  // Channel Configurations: 30mm no divider, 60mm no divider, 60mm with 30/30mm divider
+  // Combined Channel & Height Configurations (3 channel types × 3 heights = 9 options)
   const MAG_POUCH_OPTIONS = [
     {
-      id: 'single_30',
-      name: '30 mm Channel (No Divider)',
-      shortCode: '24×30 STD',
-      desc: 'Standard 30 mm single channel with no divider',
+      id: 'single_30_100',
+      name: '30 mm Channel (No Divider) — 100 mm Tall',
+      shortCode: '100×30',
+      desc: 'Standard 30 mm single channel with no divider, 100 mm tall',
       priceDelta: 0,
       nominalWidth: 30,
+      nominalHeight: 100,
       actualClampWidth: 30.0,
       outerChannelWidth: 34.0,
       slots: 1,
@@ -24,12 +25,43 @@ window.ULAW_CATALOG = (function () {
       isClampOnly: false
     },
     {
-      id: 'single_60',
-      name: '60 mm Channel (No Divider)',
-      shortCode: '24×60 STD',
-      desc: 'Standard 60 mm channel with no divider',
+      id: 'single_30_125',
+      name: '30 mm Channel (No Divider) — 125 mm Tall',
+      shortCode: '125×30',
+      desc: 'Standard 30 mm single channel with no divider, 125 mm tall',
+      priceDelta: 0,
+      nominalWidth: 30,
+      nominalHeight: 125,
+      actualClampWidth: 30.0,
+      outerChannelWidth: 34.0,
+      slots: 1,
+      dividerMm: 0,
+      isMolle: false,
+      isClampOnly: false
+    },
+    {
+      id: 'single_30_150',
+      name: '30 mm Channel (No Divider) — 150 mm Tall',
+      shortCode: '150×30',
+      desc: 'Standard 30 mm single channel with no divider, 150 mm tall',
+      priceDelta: 0,
+      nominalWidth: 30,
+      nominalHeight: 150,
+      actualClampWidth: 30.0,
+      outerChannelWidth: 34.0,
+      slots: 1,
+      dividerMm: 0,
+      isMolle: false,
+      isClampOnly: false
+    },
+    {
+      id: 'single_60_100',
+      name: '60 mm Channel (No Divider) — 100 mm Tall',
+      shortCode: '100×60',
+      desc: 'Standard 60 mm channel with no divider, 100 mm tall',
       priceDelta: 0,
       nominalWidth: 60,
+      nominalHeight: 100,
       actualClampWidth: 60.0,
       outerChannelWidth: 64.0,
       slots: 1,
@@ -38,12 +70,75 @@ window.ULAW_CATALOG = (function () {
       isClampOnly: false
     },
     {
-      id: 'div_60_30_30',
-      name: '60 mm Channel (30/30 mm Divider)',
-      shortCode: '60 (30/30)',
-      desc: '60 mm channel with a 30/30 mm divider inside',
+      id: 'single_60_125',
+      name: '60 mm Channel (No Divider) — 125 mm Tall',
+      shortCode: '125×60',
+      desc: 'Standard 60 mm channel with no divider, 125 mm tall',
       priceDelta: 0,
       nominalWidth: 60,
+      nominalHeight: 125,
+      actualClampWidth: 60.0,
+      outerChannelWidth: 64.0,
+      slots: 1,
+      dividerMm: 0,
+      isMolle: false,
+      isClampOnly: false
+    },
+    {
+      id: 'single_60_150',
+      name: '60 mm Channel (No Divider) — 150 mm Tall',
+      shortCode: '150×60',
+      desc: 'Standard 60 mm channel with no divider, 150 mm tall',
+      priceDelta: 0,
+      nominalWidth: 60,
+      nominalHeight: 150,
+      actualClampWidth: 60.0,
+      outerChannelWidth: 64.0,
+      slots: 1,
+      dividerMm: 0,
+      isMolle: false,
+      isClampOnly: false
+    },
+    {
+      id: 'div_60_30_30_100',
+      name: '60 mm Channel (30/30 mm Divider) — 100 mm Tall',
+      shortCode: '100×60 (30/30)',
+      desc: '60 mm channel with a 30/30 mm divider inside, 100 mm tall',
+      priceDelta: 0,
+      nominalWidth: 60,
+      nominalHeight: 100,
+      actualClampWidth: 30.0,
+      outerChannelWidth: 66.2,
+      slots: 2,
+      slotLayout: [30.0, 30.0],
+      dividerMm: 1.0,
+      isMolle: false,
+      isClampOnly: false
+    },
+    {
+      id: 'div_60_30_30_125',
+      name: '60 mm Channel (30/30 mm Divider) — 125 mm Tall',
+      shortCode: '125×60 (30/30)',
+      desc: '60 mm channel with a 30/30 mm divider inside, 125 mm tall',
+      priceDelta: 0,
+      nominalWidth: 60,
+      nominalHeight: 125,
+      actualClampWidth: 30.0,
+      outerChannelWidth: 66.2,
+      slots: 2,
+      slotLayout: [30.0, 30.0],
+      dividerMm: 1.0,
+      isMolle: false,
+      isClampOnly: false
+    },
+    {
+      id: 'div_60_30_30_150',
+      name: '60 mm Channel (30/30 mm Divider) — 150 mm Tall',
+      shortCode: '150×60 (30/30)',
+      desc: '60 mm channel with a 30/30 mm divider inside, 150 mm tall',
+      priceDelta: 0,
+      nominalWidth: 60,
+      nominalHeight: 150,
       actualClampWidth: 30.0,
       outerChannelWidth: 66.2,
       slots: 2,
@@ -52,12 +147,6 @@ window.ULAW_CATALOG = (function () {
       isMolle: false,
       isClampOnly: false
     }
-  ];
-
-  const CHANNEL_HEIGHT_OPTIONS = [
-    { id: 100, name: '100 mm Tall' },
-    { id: 125, name: '125 mm Tall' },
-    { id: 150, name: '150 mm Tall' }
   ];
 
   // Floating Transparent Stream Items (The 2 ULAW Holster Tools from Studio Photo)
@@ -1007,10 +1096,9 @@ window.ULAW_CATALOG = (function () {
     const pouch = MAG_POUCH_OPTIONS.find(p => p.id === pouchOptionId) || MAG_POUCH_OPTIONS[0];
     const isCustomTape = tool.defaultClampDepth > 24;
 
-    // Resolve effective channel height (Y) clamped to 100, 125, or 150 mm
-    let rawHeight = heightOverrideMm && heightOverrideMm !== 'auto'
-      ? parseInt(heightOverrideMm, 10)
-      : tool.defaultChannelHeight;
+    // Resolve effective channel height (Y) from combined channel option (or override/default)
+    let rawHeight = pouch.nominalHeight
+      || (heightOverrideMm && heightOverrideMm !== 'auto' ? parseInt(heightOverrideMm, 10) : tool.defaultChannelHeight);
     let channelHeight = rawHeight <= 100 ? 100 : (rawHeight >= 150 ? 150 : 125);
 
     // Resolve effective channel width (Z) and slots
@@ -1161,7 +1249,6 @@ window.ULAW_CATALOG = (function () {
     BRANDS,
     CATEGORIES,
     MAG_POUCH_OPTIONS,
-    CHANNEL_HEIGHT_OPTIONS,
     STREAM_ITEMS,
     PRODUCT_GALLERY,
     computeUlawConfiguration,
