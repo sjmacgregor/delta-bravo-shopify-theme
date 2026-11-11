@@ -1092,8 +1092,27 @@ window.ULAW_CATALOG = (function () {
    * ULAW v2.22.52 Real-Time Sizing & Part Marking Engine
    * Computes exact Clamp Mark, Channel Mark, WaveThickness, Lanes, and Price
    */
+  function getRecommendedChannelId(tool) {
+    if (!tool) return 'single_30_125';
+    const hRaw = parseInt(tool.defaultChannelHeight, 10) || 125;
+    const h = hRaw <= 100 ? 100 : (hRaw >= 150 ? 150 : 125);
+    let prefix = tool.defaultChannelWidth >= 60 ? 'single_60' : 'single_30';
+    if (tool.recommendedPouch && tool.recommendedPouch.startsWith('div_60')) {
+      prefix = 'div_60_30_30';
+    } else if (tool.recommendedPouch === 'single_60') {
+      prefix = 'single_60';
+    } else if (tool.recommendedPouch === 'single_30') {
+      prefix = 'single_30';
+    }
+    const id = `${prefix}_${h}`;
+    return MAG_POUCH_OPTIONS.some(p => p.id === id) ? id : MAG_POUCH_OPTIONS[0].id;
+  }
+
   function computeUlawConfiguration(tool, pouchOptionId, heightOverrideMm, markStyle) {
-    const pouch = MAG_POUCH_OPTIONS.find(p => p.id === pouchOptionId) || MAG_POUCH_OPTIONS[0];
+    const resolvedId = (!pouchOptionId || pouchOptionId === 'auto')
+      ? getRecommendedChannelId(tool)
+      : pouchOptionId;
+    const pouch = MAG_POUCH_OPTIONS.find(p => p.id === resolvedId) || MAG_POUCH_OPTIONS[0];
     const isCustomTape = tool.defaultClampDepth > 24;
 
     // Resolve effective channel height (Y) from combined channel option (or override/default)
@@ -1251,6 +1270,7 @@ window.ULAW_CATALOG = (function () {
     MAG_POUCH_OPTIONS,
     STREAM_ITEMS,
     PRODUCT_GALLERY,
+    getRecommendedChannelId,
     computeUlawConfiguration,
     searchTools
   };

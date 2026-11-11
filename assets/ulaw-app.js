@@ -9,16 +9,20 @@
     MAG_POUCH_OPTIONS,
     STREAM_ITEMS,
     PRODUCT_GALLERY,
+    getRecommendedChannelId,
     computeUlawConfiguration,
     searchTools
   } = window.ULAW_CATALOG;
 
   function getDefaultPouchId(tool) {
+    if (typeof getRecommendedChannelId === 'function') {
+      return getRecommendedChannelId(tool);
+    }
     if (!tool) return 'single_30_125';
     const hRaw = parseInt(tool.defaultChannelHeight, 10) || 125;
     const h = hRaw <= 100 ? 100 : (hRaw >= 150 ? 150 : 125);
     let prefix = tool.defaultChannelWidth >= 60 ? 'single_60' : 'single_30';
-    if (tool.recommendedPouch === 'div_60_30_30') {
+    if (tool.recommendedPouch && tool.recommendedPouch.startsWith('div_60')) {
       prefix = 'div_60_30_30';
     } else if (tool.recommendedPouch === 'single_60') {
       prefix = 'single_60';
@@ -256,11 +260,15 @@
       `).join('');
     }
 
-    // Combined Channel & Height Selector (9 options: 3 channel types × 3 heights)
+    // Combined Channel & Height Selector (9 options: 3 channel types × 3 heights, with Recommended tag)
     const pouchSelect = document.getElementById('db-select-pouch');
     if (pouchSelect) {
+      const recId = getDefaultPouchId(tool);
       pouchSelect.innerHTML = MAG_POUCH_OPTIONS.map(p => {
-        return `<option value="${p.id}" ${p.id === state.pouchId ? 'selected' : ''}>${escapeHtml(p.name)}</option>`;
+        const label = p.id === recId
+          ? `${p.name} (Recommended)`
+          : p.name;
+        return `<option value="${p.id}" ${p.id === state.pouchId ? 'selected' : ''}>${escapeHtml(label)}</option>`;
       }).join('');
     }
   }
