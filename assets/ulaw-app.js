@@ -7,11 +7,32 @@
     TOOLS,
     BRANDS,
     MAG_POUCH_OPTIONS,
+    CHANNEL_HEIGHT_OPTIONS,
     STREAM_ITEMS,
     PRODUCT_GALLERY,
     computeUlawConfiguration,
     searchTools
   } = window.ULAW_CATALOG;
+
+  const HEIGHT_OPTIONS = CHANNEL_HEIGHT_OPTIONS || [
+    { id: 100, name: '100 mm Tall' },
+    { id: 125, name: '125 mm Tall' },
+    { id: 150, name: '150 mm Tall' }
+  ];
+
+  function getDefaultPouchId(tool) {
+    if (!tool) return 'single_30';
+    if (MAG_POUCH_OPTIONS.some(p => p.id === tool.recommendedPouch)) {
+      return tool.recommendedPouch;
+    }
+    return tool.defaultChannelWidth >= 60 ? 'single_60' : 'single_30';
+  }
+
+  function getDefaultHeight(tool) {
+    if (!tool) return 125;
+    const h = parseInt(tool.defaultChannelHeight, 10) || 125;
+    return h <= 100 ? 100 : (h >= 150 ? 150 : 125);
+  }
 
   const state = {
     view: 'home',
@@ -20,7 +41,8 @@
     activeIndex: -1,
     brand: TOOLS[0].brand,
     toolId: TOOLS[0].id,
-    pouchId: 'auto',
+    pouchId: getDefaultPouchId(TOOLS[0]),
+    channelHeight: getDefaultHeight(TOOLS[0]),
     customImage: null,
     cart: []
   };
@@ -67,7 +89,7 @@
   }
 
   function getActiveConfig() {
-    return computeUlawConfiguration(getSelectedTool(), state.pouchId, 'auto', 'inlay');
+    return computeUlawConfiguration(getSelectedTool(), state.pouchId, state.channelHeight, 'inlay');
   }
 
   // ==========================================================================
@@ -173,10 +195,11 @@
       return;
     }
 
-    // Auto-populate brand and model on the ULAW product page
+    // Auto-populate brand, model, channel, and height on the ULAW product page
     state.brand = matched.brand;
     state.toolId = matched.id;
-    state.pouchId = 'auto';
+    state.pouchId = getDefaultPouchId(matched);
+    state.channelHeight = getDefaultHeight(matched);
     state.customImage = null;
 
     closeAutocomplete();
@@ -240,15 +263,19 @@
       `).join('');
     }
 
-    // Mag Pouch Size Selector (Optional)
+    // Channel Selector (30mm no divider, 60mm no divider, 60mm with 30/30mm divider)
     const pouchSelect = document.getElementById('db-select-pouch');
     if (pouchSelect) {
-      const recObj = MAG_POUCH_OPTIONS.find(p => p.id === tool.recommendedPouch) || MAG_POUCH_OPTIONS[1];
       pouchSelect.innerHTML = MAG_POUCH_OPTIONS.map(p => {
-        const label = p.id === 'auto'
-          ? `Recommended — ${recObj.name}`
-          : p.name;
-        return `<option value="${p.id}" ${p.id === state.pouchId ? 'selected' : ''}>${escapeHtml(label)}</option>`;
+        return `<option value="${p.id}" ${p.id === state.pouchId ? 'selected' : ''}>${escapeHtml(p.name)}</option>`;
+      }).join('');
+    }
+
+    // Channel Height Selector (100mm, 125mm, 150mm tall)
+    const heightSelect = document.getElementById('db-select-height');
+    if (heightSelect) {
+      heightSelect.innerHTML = HEIGHT_OPTIONS.map(h => {
+        return `<option value="${h.id}" ${h.id === state.channelHeight ? 'selected' : ''}>${escapeHtml(h.name)}</option>`;
       }).join('');
     }
   }
@@ -259,7 +286,7 @@
   function addToCart() {
     const cfg = getActiveConfig();
     const { tool } = cfg;
-    const key = `${cfg.sku}-${state.pouchId}`;
+    const key = `${cfg.sku}-${state.pouchId}-${cfg.channelHeight}`;
     const existing = state.cart.find(i => i.key === key);
 
     if (existing) {
@@ -271,7 +298,7 @@
         brand: tool.brand,
         model: tool.model,
         mpn: tool.mpn,
-        pouch: cfg.pouch.name,
+        pouch: `${cfg.pouch.name} · ${cfg.channelHeight} mm Tall`,
         stamp: `ULAW ${cfg.clampMark} · ${cfg.channelMark}`,
         price: cfg.unitPrice,
         qty: 1,
@@ -297,7 +324,8 @@
               'Tool Brand': tool.brand,
               'Tool Model': tool.model,
               'Part Number': tool.mpn,
-              'Mag Pouch Size': cfg.pouch.name,
+              'Channel': cfg.pouch.name,
+              'Channel Height': `${cfg.channelHeight} mm Tall`,
               'Holster Spec': `ULAW ${cfg.clampMark} · ${cfg.channelMark}`
             }
           }]
@@ -425,6 +453,8 @@
             if (match) {
               state.brand = match.brand;
               state.toolId = match.id;
+              state.pouchId = getDefaultPouchId(match);
+              state.channelHeight = getDefaultHeight(match);
             }
           }
         }
@@ -493,19 +523,33 @@
     document.getElementById('db-select-brand')?.addEventListener('change', (e) => {
       state.brand = e.target.value;
       const firstMatch = TOOLS.find(t => t.brand === state.brand);
-      if (firstMatch) state.toolId = firstMatch.id;
+      if (firstMatch) {
+        state.toolId = firstMatch.id;
+        state.pouchId = getDefaultPouchId(firstMatch);
+        state.channelHeight = getDefaultHeight(firstMatch);
+      }
       state.customImage = null;
       renderProductPage();
     });
 
     document.getElementById('db-select-model')?.addEventListener('change', (e) => {
       state.toolId = e.target.value;
+      const match = TOOLS.find(t => t.id === state.toolId);
+      if (match) {
+        state.pouchId = getDefaultPouchId(match);
+        state.channelHeight = getDefaultHeight(match);
+      }
       state.customImage = null;
       renderProductPage();
     });
 
     document.getElementById('db-select-pouch')?.addEventListener('change', (e) => {
       state.pouchId = e.target.value;
+      renderProductPage();
+    });
+
+    document.getElementById('db-select-height')?.addEventListener('change', (e) => {
+      state.channelHeight = parseInt(e.target.value, 10) || 125;
       renderProductPage();
     });
 

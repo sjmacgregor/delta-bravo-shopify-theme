@@ -7,25 +7,13 @@ window.ULAW_CATALOG = (function () {
   function __dbAsset(file) {
     return (window.ULAW_ASSET_URLS && window.ULAW_ASSET_URLS[file]) ? window.ULAW_ASSET_URLS[file] : ('assets/images/' + file);
   }
-  // Mag Pouch & Carry Configurations (from §3.2, §3.3, §14, §15 of ULAW Spec)
+  // Channel Configurations: 30mm no divider, 60mm no divider, 60mm with 30/30mm divider
   const MAG_POUCH_OPTIONS = [
     {
-      id: 'auto',
-      name: 'Auto (Recommended Pouch)',
-      shortCode: 'AUTO-FIT',
-      desc: 'Automatically selects the optimal 30mm, 60mm, or MOLLE channel for this tool',
-      priceDelta: 0,
-      nominalWidth: null,
-      slots: 1,
-      dividerMm: 0,
-      isMolle: false,
-      isClampOnly: false
-    },
-    {
       id: 'single_30',
-      name: '30 mm Single Pistol Mag Pouch',
+      name: '30 mm Channel (No Divider)',
       shortCode: '24×30 STD',
-      desc: 'Standard 30 mm single pistol mag pouch drop-in channel + wave clamp',
+      desc: 'Standard 30 mm single channel with no divider',
       priceDelta: 0,
       nominalWidth: 30,
       actualClampWidth: 30.0,
@@ -36,25 +24,10 @@ window.ULAW_CATALOG = (function () {
       isClampOnly: false
     },
     {
-      id: 'div_30_15_15',
-      name: '30 mm Divided (15/15 Dual Narrow)',
-      shortCode: '30 (15/15)',
-      desc: 'Holds two 15 mm (14.4 mm) clamps in one 30 mm pouch with 1.0 mm bullnose divider',
-      priceDelta: 0,
-      nominalWidth: 30,
-      actualClampWidth: 14.4,
-      outerChannelWidth: 35.0,
-      slots: 2,
-      slotLayout: [14.4, 14.4],
-      dividerMm: 1.0,
-      isMolle: false,
-      isClampOnly: false
-    },
-    {
       id: 'single_60',
-      name: '60 mm Double Rifle Mag Pouch',
+      name: '60 mm Channel (No Divider)',
       shortCode: '24×60 STD',
-      desc: 'Standard 60 mm AR/rifle mag pouch channel (fits wide tools or multi-lane clamps)',
+      desc: 'Standard 60 mm channel with no divider',
       priceDelta: 0,
       nominalWidth: 60,
       actualClampWidth: 60.0,
@@ -66,9 +39,9 @@ window.ULAW_CATALOG = (function () {
     },
     {
       id: 'div_60_30_30',
-      name: '60 mm Divided (30/30 Dual Standard)',
+      name: '60 mm Channel (30/30 mm Divider)',
       shortCode: '60 (30/30)',
-      desc: 'Holds two standard 30.0 mm clamps side-by-side with 1.0 mm bullnose divider (66.2 mm outer)',
+      desc: '60 mm channel with a 30/30 mm divider inside',
       priceDelta: 0,
       nominalWidth: 60,
       actualClampWidth: 30.0,
@@ -78,76 +51,13 @@ window.ULAW_CATALOG = (function () {
       dividerMm: 1.0,
       isMolle: false,
       isClampOnly: false
-    },
-    {
-      id: 'div_60_45_15',
-      name: '60 mm Divided (45/15 Combo)',
-      shortCode: '60 (45/15)',
-      desc: 'Holds one 45 mm (44.4 mm) clamp + one 15 mm (14.4 mm) narrow clamp (65.0 mm outer)',
-      priceDelta: 0,
-      nominalWidth: 60,
-      actualClampWidth: 44.4,
-      outerChannelWidth: 65.0,
-      slots: 2,
-      slotLayout: [44.4, 14.4],
-      dividerMm: 1.0,
-      isMolle: false,
-      isClampOnly: false
-    },
-    {
-      id: 'div_60_3x20',
-      name: '60 mm Divided (3×20 Triple Tool)',
-      shortCode: '60 (3×20)',
-      desc: 'Holds three 20 mm (19.4 mm) clamps separated by two 1.0 mm bullnose dividers (66.0 mm outer)',
-      priceDelta: 0,
-      nominalWidth: 60,
-      actualClampWidth: 19.4,
-      outerChannelWidth: 66.0,
-      slots: 3,
-      slotLayout: [19.4, 19.4, 19.4],
-      dividerMm: 1.0,
-      isMolle: false,
-      isClampOnly: false
-    },
-    {
-      id: 'div_60_4x15',
-      name: '60 mm Divided (4×15 Quad Narrow)',
-      shortCode: '60 (4×15)',
-      desc: 'Holds four 15 mm (14.4 mm) clamps separated by three 1.0 mm bullnose dividers (67.0 mm outer)',
-      priceDelta: 0,
-      nominalWidth: 60,
-      actualClampWidth: 14.4,
-      outerChannelWidth: 67.0,
-      slots: 4,
-      slotLayout: [14.4, 14.4, 14.4, 14.4],
-      dividerMm: 1.0,
-      isMolle: false,
-      isClampOnly: false
-    },
-    {
-      id: 'molle_direct',
-      name: 'Direct MOLLE / Belt Mount (No Pouch)',
-      shortCode: 'MOLLE WEAVE',
-      desc: 'Integrated 60° HSGI clip weave / PALS cable-tie back wall for direct vest or battle-belt mounting',
-      priceDelta: 0,
-      nominalWidth: null,
-      slots: 1,
-      dividerMm: 0,
-      isMolle: true,
-      isClampOnly: false
-    },
-    {
-      id: 'clamp_only',
-      name: 'Clamp Insert Only (Swap Into Channel)',
-      shortCode: 'CLAMP ONLY',
-      desc: 'Universal y = -6.50 mm mid-base snap arc swaps into any ULAW channel of matching height',
-      priceDelta: 0,
-      nominalWidth: null,
-      slots: 1,
-      dividerMm: 0,
-      isMolle: false,
-      isClampOnly: true
     }
+  ];
+
+  const CHANNEL_HEIGHT_OPTIONS = [
+    { id: 100, name: '100 mm Tall' },
+    { id: 125, name: '125 mm Tall' },
+    { id: 150, name: '150 mm Tall' }
   ];
 
   // Floating Transparent Stream Items (The 2 ULAW Holster Tools from Studio Photo)
@@ -1097,40 +1007,20 @@ window.ULAW_CATALOG = (function () {
     const pouch = MAG_POUCH_OPTIONS.find(p => p.id === pouchOptionId) || MAG_POUCH_OPTIONS[0];
     const isCustomTape = tool.defaultClampDepth > 24;
 
-    // Resolve effective channel height (Y)
-    let channelHeight = heightOverrideMm && heightOverrideMm !== 'auto'
+    // Resolve effective channel height (Y) clamped to 100, 125, or 150 mm
+    let rawHeight = heightOverrideMm && heightOverrideMm !== 'auto'
       ? parseInt(heightOverrideMm, 10)
       : tool.defaultChannelHeight;
+    let channelHeight = rawHeight <= 100 ? 100 : (rawHeight >= 150 ? 150 : 125);
 
     // Resolve effective channel width (Z) and slots
-    let channelWidth = tool.defaultChannelWidth;
-    let outerWidth = tool.defaultChannelWidth + 4.0;
-    let clampActualWidth = tool.defaultChannelWidth;
-    let slots = 1;
-    let slotLayout = [tool.defaultChannelWidth];
+    let channelWidth = pouch.nominalWidth || 30;
+    let outerWidth = pouch.outerChannelWidth || (channelWidth + 4.0);
+    let clampActualWidth = pouch.actualClampWidth || channelWidth;
+    let slots = pouch.slots || 1;
+    let slotLayout = pouch.slotLayout || [clampActualWidth];
     let clampLanes = 1;
-    let isMolle = isCustomTape || pouch.isMolle;
-
-    if (pouch.id === 'auto') {
-      const recPouch = MAG_POUCH_OPTIONS.find(p => p.id === tool.recommendedPouch) || MAG_POUCH_OPTIONS[1];
-      if (!isCustomTape && recPouch && recPouch.nominalWidth) {
-        channelWidth = recPouch.nominalWidth;
-        outerWidth = recPouch.outerChannelWidth || (channelWidth + 4.0);
-        clampActualWidth = recPouch.actualClampWidth || channelWidth;
-        slots = recPouch.slots || 1;
-        slotLayout = recPouch.slotLayout || [clampActualWidth];
-      } else if (isCustomTape) {
-        channelWidth = tool.defaultChannelWidth;
-        outerWidth = tool.defaultChannelWidth + 6.0;
-        clampActualWidth = tool.defaultChannelWidth;
-      }
-    } else if (pouch.nominalWidth) {
-      channelWidth = pouch.nominalWidth;
-      outerWidth = pouch.outerChannelWidth || (channelWidth + 4.0);
-      clampActualWidth = pouch.actualClampWidth || channelWidth;
-      slots = pouch.slots || 1;
-      slotLayout = pouch.slotLayout || [clampActualWidth];
-    }
+    let isMolle = false;
 
     // Multi-lane packing inside undivided 30mm / 60mm for narrow tools (§12.2)
     if (slots === 1 && !isCustomTape && tool.toolWidth <= 13.5) {
@@ -1149,9 +1039,7 @@ window.ULAW_CATALOG = (function () {
     const topGap = tool.defaultTopGap;
     const botGap = tool.defaultBotGap;
     const clampMark = `${topGap}/${botGap} H${channelHeight}`;
-    const channelMark = isCustomTape
-      ? `${channelHeight}X${channelWidth}X${tool.defaultClampDepth}`
-      : `${channelHeight}X${channelWidth}`;
+    const channelMark = `${channelHeight}X${channelWidth}`;
 
     // Dynamic Price strictly based on Channel Dimensions:
     // 30x100 is $5
@@ -1167,9 +1055,7 @@ window.ULAW_CATALOG = (function () {
         return h <= 100 ? 7.00 : 8.00;
       }
     }
-    const effectivePouchForPrice = pouch.id === 'auto'
-      ? (MAG_POUCH_OPTIONS.find(p => p.id === tool.recommendedPouch) || pouch)
-      : pouch;
+    const effectivePouchForPrice = pouch;
     const unitPrice = getHolsterPrice(channelWidth, channelHeight);
 
     // Active stability & special features summary
@@ -1191,16 +1077,13 @@ window.ULAW_CATALOG = (function () {
     if (slots > 1) {
       features.push(`${slots - 1}× 1.0 mm Semicircular Bullnose Divider`);
     }
-    if (isMolle) {
-      features.push('60° HSGI Clip Weave / PALS Back Mount');
-    }
 
     const sku = `ULAW-${channelMark}-${topGap}-${botGap}-${tool.mpn.replace(/[^A-Z0-9]/gi, '').toUpperCase()}`;
 
     return {
       tool,
       pouch: effectivePouchForPrice,
-      selectedPouchId: pouchOptionId,
+      selectedPouchId: pouch.id,
       channelHeight,
       channelWidth,
       outerWidth,
@@ -1278,6 +1161,7 @@ window.ULAW_CATALOG = (function () {
     BRANDS,
     CATEGORIES,
     MAG_POUCH_OPTIONS,
+    CHANNEL_HEIGHT_OPTIONS,
     STREAM_ITEMS,
     PRODUCT_GALLERY,
     computeUlawConfiguration,
