@@ -7,6 +7,18 @@ window.ULAW_CATALOG = (function () {
   function __dbAsset(file) {
     return (window.ULAW_ASSET_URLS && window.ULAW_ASSET_URLS[file]) ? window.ULAW_ASSET_URLS[file] : ('assets/images/' + file);
   }
+  // ULAW Widths including Pistol & Rifle Mag Pouch widths
+  const ULAW_WIDTH_OPTIONS = [
+    {
+      widthMm: 30,
+      name: '30 mm (1.18") — Pistol Mag Pouch Width'
+    },
+    {
+      widthMm: 60,
+      name: '60 mm (2.36") — Rifle Mag Pouch Width'
+    }
+  ];
+
   // Combined Channel & Height Configurations (3 channel types × 3 heights = 9 options)
   const MAG_POUCH_OPTIONS = [
     {
@@ -1267,6 +1279,7 @@ window.ULAW_CATALOG = (function () {
     TOOLS,
     BRANDS,
     CATEGORIES,
+    ULAW_WIDTH_OPTIONS,
     MAG_POUCH_OPTIONS,
     STREAM_ITEMS,
     PRODUCT_GALLERY,

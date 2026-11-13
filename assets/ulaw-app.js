@@ -6,6 +6,7 @@
   const {
     TOOLS,
     BRANDS,
+    ULAW_WIDTH_OPTIONS,
     MAG_POUCH_OPTIONS,
     STREAM_ITEMS,
     PRODUCT_GALLERY,
@@ -13,6 +14,11 @@
     computeUlawConfiguration,
     searchTools
   } = window.ULAW_CATALOG;
+
+  const WIDTH_OPTIONS = ULAW_WIDTH_OPTIONS || [
+    { widthMm: 30, name: '30 mm (1.18") — Pistol Mag Pouch Width' },
+    { widthMm: 60, name: '60 mm (2.36") — Rifle Mag Pouch Width' }
+  ];
 
   function getDefaultPouchId(tool) {
     if (typeof getRecommendedChannelId === 'function') {
@@ -260,10 +266,24 @@
       `).join('');
     }
 
+    // ULAW Width Selector (Pistol & Rifle Mag Pouch widths, with Recommended tag)
+    const recId = getDefaultPouchId(tool);
+    const recOpt = MAG_POUCH_OPTIONS.find(p => p.id === recId) || MAG_POUCH_OPTIONS[0];
+    const recWidth = recOpt.nominalWidth || 30;
+    const activeWidth = cfg.channelWidth <= 30 ? 30 : 60;
+    const widthSelect = document.getElementById('db-select-width');
+    if (widthSelect) {
+      widthSelect.innerHTML = WIDTH_OPTIONS.map(w => {
+        const label = w.widthMm === recWidth
+          ? `${w.name} (Recommended)`
+          : w.name;
+        return `<option value="${w.widthMm}" ${w.widthMm === activeWidth ? 'selected' : ''}>${escapeHtml(label)}</option>`;
+      }).join('');
+    }
+
     // Combined Channel & Height Selector (9 options: 3 channel types × 3 heights, with Recommended tag)
     const pouchSelect = document.getElementById('db-select-pouch');
     if (pouchSelect) {
-      const recId = getDefaultPouchId(tool);
       pouchSelect.innerHTML = MAG_POUCH_OPTIONS.map(p => {
         const label = p.id === recId
           ? `${p.name} (Recommended)`
@@ -529,6 +549,20 @@
         state.pouchId = getDefaultPouchId(match);
       }
       state.customImage = null;
+      renderProductPage();
+    });
+
+    document.getElementById('db-select-width')?.addEventListener('change', (e) => {
+      const targetWidth = parseInt(e.target.value, 10) || 30;
+      const currentOpt = MAG_POUCH_OPTIONS.find(p => p.id === state.pouchId) || MAG_POUCH_OPTIONS[0];
+      const h = currentOpt.nominalHeight || 125;
+      if (targetWidth <= 30) {
+        state.pouchId = `single_30_${h}`;
+      } else {
+        const recId = getDefaultPouchId(getSelectedTool());
+        const prefix = recId.startsWith('div_60_30_30') ? 'div_60_30_30' : 'single_60';
+        state.pouchId = `${prefix}_${h}`;
+      }
       renderProductPage();
     });
 
