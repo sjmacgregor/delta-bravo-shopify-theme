@@ -16,22 +16,33 @@
   } = window.ULAW_CATALOG;
 
   const WIDTH_OPTIONS = ULAW_WIDTH_OPTIONS || [
-    { id: 'single_30', widthMm: 30, name: '30 mm (1.18") — Pistol Mag Pouch Width' },
-    { id: 'single_60', widthMm: 60, name: '60 mm (2.36") — Rifle Mag Pouch Width' },
-    { id: 'div_60_30_30', widthMm: 60, name: '60 mm (2.36") — 30/30 mm Divided Rifle Mag Pouch Width' },
-    { id: 'custom', widthMm: null, name: 'Custom Width (mm)' }
+    { id: 'single_30', widthMm: 30, depthMm: 24, name: '30 × 24 mm — Pistol Mag Pouch Fit' },
+    { id: 'single_60', widthMm: 60, depthMm: 24, name: '60 × 24 mm — Rifle Mag Pouch Fit' },
+    { id: 'div_60_30_30', widthMm: 60, depthMm: 24, name: '60 × 24 mm — 30/30 mm Divided Rifle Pouch Fit' },
+    { id: 'custom', widthMm: null, depthMm: null, name: 'Custom Size (Non-Standard Tool / Pouch)' }
   ];
+
+  const HEIGHT_OPTIONS = [100, 125, 150];
 
   function getDefaultPouchId(tool) {
     if (typeof getRecommendedChannelId === 'function') {
       return getRecommendedChannelId(tool);
     }
     if (!tool) return 'single_30_125';
+    if (tool.defaultClampDepth > 24 || tool.defaultChannelWidth > 60) {
+      return 'custom';
+    }
     const hRaw = parseInt(tool.defaultChannelHeight, 10) || 125;
     const h = hRaw <= 100 ? 100 : (hRaw >= 150 ? 150 : 125);
     const prefix = tool.defaultChannelWidth >= 60 ? 'single_60' : 'single_30';
     const id = `${prefix}_${h}`;
     return MAG_POUCH_OPTIONS.some(p => p.id === id) ? id : MAG_POUCH_OPTIONS[0].id;
+  }
+
+  function getToolRecommendedHeight(tool) {
+    if (!tool) return 125;
+    const hRaw = parseInt(tool.defaultChannelHeight, 10) || 125;
+    return hRaw <= 100 ? 100 : (hRaw >= 150 ? 150 : 125);
   }
 
   const state = {
@@ -42,7 +53,9 @@
     brand: TOOLS[0].brand,
     toolId: TOOLS[0].id,
     pouchId: getDefaultPouchId(TOOLS[0]),
-    customWidthMm: 45,
+    heightOverride: 'auto',
+    customWidthMm: TOOLS[0].defaultChannelWidth || 45,
+    customizeOpen: false,
     customImage: null,
     cart: []
   };
@@ -89,7 +102,7 @@
   }
 
   function getActiveConfig() {
-    return computeUlawConfiguration(getSelectedTool(), state.pouchId, 'auto', 'inlay', state.customWidthMm);
+    return computeUlawConfiguration(getSelectedTool(), state.pouchId, state.heightOverride, 'inlay', state.customWidthMm);
   }
 
   // ==========================================================================
@@ -195,14 +208,69 @@
       return;
     }
 
-    // Auto-populate brand, model, and combined channel+height on the ULAW product page
+    // Auto-populate brand, model, and recommended holster fit on the ULAW product page
     state.brand = matched.brand;
     state.toolId = matched.id;
     state.pouchId = getDefaultPouchId(matched);
+    state.heightOverride = 'auto';
+    state.customWidthMm = matched.defaultChannelWidth || 45;
     state.customImage = null;
 
     closeAutocomplete();
     showView('product');
+  }
+
+  function updateFitSummaryCard(cfg) {
+    const { tool } = cfg;
+    const recId = getDefaultPouchId(tool);
+    const recHeight = getToolRecommendedHeight(tool);
+    const recPrefix = recId === 'custom'
+      ? 'custom'
+      : (recId.startsWith('single_60') ? 'single_60' : 'single_30');
+    const activePrefix = (state.pouchId === 'custom' || state.pouchId.startsWith('custom'))
+      ? 'custom'
+      : (state.pouchId.startsWith('div_60_30_30')
+        ? 'div_60_30_30'
+        : (state.pouchId.startsWith('single_60') ? 'single_60' : 'single_30'));
+
+    const isDefaultFit = activePrefix === recPrefix && cfg.channelHeight === recHeight;
+    const badgeEl = document.getElementById('db-fit-badge');
+    const sizeEl = document.getElementById('db-fit-size');
+    const subEl = document.getElementById('db-fit-sub');
+
+    if (badgeEl) {
+      if (recPrefix === 'custom' && activePrefix === 'custom') {
+        badgeEl.textContent = 'Custom Tool Fit (Auto-Sized)';
+      } else {
+        badgeEl.textContent = isDefaultFit ? 'Recommended Fit' : 'Customized Fit';
+      }
+    }
+
+    if (sizeEl) {
+      if (activePrefix === 'custom') {
+        sizeEl.textContent = `Custom (${cfg.channelWidth} × ${cfg.clampDepth} mm) · ${cfg.channelHeight} mm Tall`;
+      } else if (activePrefix === 'div_60_30_30') {
+        sizeEl.textContent = `60 × 24 mm (30/30 Divided) · ${cfg.channelHeight} mm Tall`;
+      } else if (activePrefix === 'single_60') {
+        sizeEl.textContent = `60 × 24 mm · ${cfg.channelHeight} mm Tall`;
+      } else {
+        sizeEl.textContent = `30 × 24 mm · ${cfg.channelHeight} mm Tall`;
+      }
+    }
+
+    if (subEl) {
+      if (activePrefix === 'custom') {
+        subEl.textContent = tool.defaultClampDepth > 24
+          ? `Oversized tool (${tool.defaultChannelWidth}×${tool.defaultClampDepth} mm) — exceeds standard 30×24 / 60×24`
+          : `Custom ${cfg.channelWidth} mm width holster`;
+      } else if (activePrefix === 'div_60_30_30') {
+        subEl.textContent = `Dual 30/30 mm Divided Rifle Mag Pouch Fit · Built for ${tool.brand} ${tool.model}`;
+      } else if (activePrefix === 'single_60') {
+        subEl.textContent = `Standard Rifle Mag Pouch Fit (60 × 24 mm) · Built for ${tool.brand} ${tool.model}`;
+      } else {
+        subEl.textContent = `Standard Pistol Mag Pouch Fit (30 × 24 mm) · Built for ${tool.brand} ${tool.model}`;
+      }
+    }
   }
 
   // ==========================================================================
@@ -262,10 +330,26 @@
       `).join('');
     }
 
-    // ULAW Width Selector (Pistol 30mm, Rifle 60mm, 60mm 30/30 Divided, and Custom Width, with Recommended tag)
+    // Recommended Fit Summary Card
+    updateFitSummaryCard(cfg);
+
+    // Channel Height Selector (100 / 125 / 150 mm with Recommended tag for tool)
+    const recHeight = getToolRecommendedHeight(tool);
+    const heightSelect = document.getElementById('db-select-height');
+    if (heightSelect) {
+      heightSelect.innerHTML = HEIGHT_OPTIONS.map(h => {
+        const label = h === recHeight
+          ? `${h} mm Tall (Recommended for ${tool.model})`
+          : `${h} mm Tall`;
+        return `<option value="${h}" ${h === cfg.channelHeight ? 'selected' : ''}>${escapeHtml(label)}</option>`;
+      }).join('');
+    }
+
+    // Holster Size Selector: 30x24, 60x24, 60x24 (30/30 Divided), or Custom
+    // Divided channel is never recommended; only 30x24, 60x24, or Custom (for oversized tools) is recommended
     const recId = getDefaultPouchId(tool);
-    const recPrefix = recId.startsWith('div_60_30_30')
-      ? 'div_60_30_30'
+    const recPrefix = recId === 'custom'
+      ? 'custom'
       : (recId.startsWith('single_60') ? 'single_60' : 'single_30');
     const activePrefix = (state.pouchId === 'custom' || state.pouchId.startsWith('custom'))
       ? 'custom'
@@ -289,6 +373,16 @@
     }
     if (customInput && activePrefix === 'custom') {
       customInput.value = state.customWidthMm;
+    }
+
+    const customizePanel = document.getElementById('db-customize-panel');
+    const customizeToggle = document.getElementById('db-customize-toggle');
+    if (customizePanel) {
+      customizePanel.style.display = state.customizeOpen ? 'block' : 'none';
+    }
+    if (customizeToggle) {
+      customizeToggle.setAttribute('aria-expanded', state.customizeOpen ? 'true' : 'false');
+      customizeToggle.innerHTML = state.customizeOpen ? 'Hide Options &#9652;' : 'Customize Fit &#9662;';
     }
   }
 
@@ -536,6 +630,8 @@
       if (firstMatch) {
         state.toolId = firstMatch.id;
         state.pouchId = getDefaultPouchId(firstMatch);
+        state.heightOverride = 'auto';
+        state.customWidthMm = firstMatch.defaultChannelWidth || 45;
       }
       state.customImage = null;
       renderProductPage();
@@ -546,8 +642,30 @@
       const match = TOOLS.find(t => t.id === state.toolId);
       if (match) {
         state.pouchId = getDefaultPouchId(match);
+        state.heightOverride = 'auto';
+        state.customWidthMm = match.defaultChannelWidth || 45;
       }
       state.customImage = null;
+      renderProductPage();
+    });
+
+    document.getElementById('db-customize-toggle')?.addEventListener('click', () => {
+      state.customizeOpen = !state.customizeOpen;
+      renderProductPage();
+    });
+
+    document.getElementById('db-select-height')?.addEventListener('change', (e) => {
+      const h = parseInt(e.target.value, 10) || 125;
+      state.heightOverride = h;
+      if (state.pouchId !== 'custom' && !state.pouchId.startsWith('custom')) {
+        const prefix = state.pouchId.startsWith('div_60_30_30')
+          ? 'div_60_30_30'
+          : (state.pouchId.startsWith('single_60') ? 'single_60' : 'single_30');
+        const nextId = `${prefix}_${h}`;
+        if (MAG_POUCH_OPTIONS.some(p => p.id === nextId)) {
+          state.pouchId = nextId;
+        }
+      }
       renderProductPage();
     });
 
@@ -558,8 +676,8 @@
         renderProductPage();
         document.getElementById('db-custom-width-input')?.focus();
       } else {
-        const currentOpt = MAG_POUCH_OPTIONS.find(p => p.id === state.pouchId) || MAG_POUCH_OPTIONS[0];
-        const h = currentOpt.nominalHeight || 125;
+        const currentCfg = getActiveConfig();
+        const h = currentCfg.channelHeight || 125;
         const nextId = `${prefix}_${h}`;
         state.pouchId = MAG_POUCH_OPTIONS.some(p => p.id === nextId) ? nextId : MAG_POUCH_OPTIONS[0].id;
         renderProductPage();
@@ -575,6 +693,7 @@
         if (priceEl) {
           priceEl.textContent = formatPrice(cfg.unitPrice);
         }
+        updateFitSummaryCard(cfg);
       }
     });
 

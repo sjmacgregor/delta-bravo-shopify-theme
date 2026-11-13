@@ -115,15 +115,37 @@
           </div>
 
           <div class="db-field">
-            <label class="db-label" for="db-select-model"><span class="db-step-badge">2</span> Model</label>
+            <label class="db-label" for="db-select-model"><span class="db-step-badge">2</span> Tool Model</label>
             <select id="db-select-model" class="db-select"></select>
           </div>
 
-          <div class="db-field">
-            <label class="db-label" for="db-select-width"><span class="db-step-badge">3</span> ULAW Width</label>
-            <select id="db-select-width" class="db-select"></select>
-            <div class="db-custom-width" id="db-custom-width-wrap" style="display:none;">
-              <input type="number" id="db-custom-width-input" class="db-input" min="15" max="120" step="1" placeholder="Enter custom width in mm (e.g. 45)" />
+          <!-- Auto-Configured Holster Summary Card (Primary 90% Buyer Flow) -->
+          <div class="db-fit-card" id="db-fit-card">
+            <div class="db-fit-card__top">
+              <div class="db-fit-card__info">
+                <span class="db-fit-card__badge" id="db-fit-badge">Recommended Fit</span>
+                <div class="db-fit-card__size" id="db-fit-size">30 × 24 mm · 125 mm Tall</div>
+                <div class="db-fit-card__sub" id="db-fit-sub">Pistol Mag Pouch Fit · Ready for your tool</div>
+              </div>
+              <button type="button" class="db-fit-card__toggle" id="db-customize-toggle" aria-expanded="false">
+                Customize Fit &#9662;
+              </button>
+            </div>
+
+            <!-- Optional Overrides for Pouch Height or Holster Footprint -->
+            <div class="db-customize-panel" id="db-customize-panel" style="display:none;">
+              <div class="db-field db-field--compact">
+                <label class="db-label" for="db-select-height">Channel Height <span class="db-label__opt">(Match your pouch height)</span></label>
+                <select id="db-select-height" class="db-select"></select>
+              </div>
+
+              <div class="db-field db-field--compact">
+                <label class="db-label" for="db-select-width">Holster Size <span class="db-label__opt">(30×24, 60×24, or Custom)</span></label>
+                <select id="db-select-width" class="db-select"></select>
+                <div class="db-custom-width" id="db-custom-width-wrap" style="display:none;">
+                  <input type="number" id="db-custom-width-input" class="db-input" min="15" max="120" step="1" placeholder="Enter custom width in mm (e.g. 45)" />
+                </div>
+              </div>
             </div>
           </div>
 

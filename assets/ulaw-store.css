@@ -629,6 +629,87 @@ button, input, select {
   border-color: var(--db-dark);
 }
 
+/* Auto-Configured Recommended Fit Summary Card */
+.db-fit-card {
+  background: var(--db-bg);
+  border: 1.5px solid var(--db-border-strong);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 18px;
+}
+
+.db-fit-card__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.db-fit-card__info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.db-fit-card__badge {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(196, 61, 32, 0.12);
+  color: var(--db-accent);
+  font-family: var(--db-font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.db-fit-card__size {
+  font-family: var(--db-font-mono);
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: var(--db-text);
+  margin-top: 2px;
+}
+
+.db-fit-card__sub {
+  font-size: 0.82rem;
+  color: var(--db-muted);
+}
+
+.db-fit-card__toggle {
+  background: var(--db-surface);
+  border: 1px solid var(--db-border-strong);
+  border-radius: 8px;
+  padding: 6px 11px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--db-text);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.db-fit-card__toggle:hover {
+  border-color: var(--db-dark);
+}
+
+.db-customize-panel {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--db-border);
+}
+
+.db-field--compact {
+  margin-bottom: 12px;
+}
+
+.db-field--compact:last-child {
+  margin-bottom: 0;
+}
+
 .db-add-btn {
   width: 100%;
   height: 52px;

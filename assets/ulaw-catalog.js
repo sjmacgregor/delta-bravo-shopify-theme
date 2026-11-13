@@ -1118,6 +1118,9 @@ window.ULAW_CATALOG = (function () {
    */
   function getRecommendedChannelId(tool) {
     if (!tool) return 'single_30_125';
+    if (tool.defaultClampDepth > 24 || tool.defaultChannelWidth > 60) {
+      return 'custom';
+    }
     const hRaw = parseInt(tool.defaultChannelHeight, 10) || 125;
     const h = hRaw <= 100 ? 100 : (hRaw >= 150 ? 150 : 125);
     const prefix = tool.defaultChannelWidth >= 60 ? 'single_60' : 'single_30';
@@ -1126,27 +1129,29 @@ window.ULAW_CATALOG = (function () {
   }
 
   function computeUlawConfiguration(tool, pouchOptionId, heightOverrideMm, markStyle, customWidthMm) {
-    const isCustomWidth = pouchOptionId === 'custom' || (typeof pouchOptionId === 'string' && pouchOptionId.startsWith('custom'));
+    const isCustomTape = tool.defaultClampDepth > 24 || tool.defaultChannelWidth > 60;
     const resolvedId = (!pouchOptionId || pouchOptionId === 'auto')
       ? getRecommendedChannelId(tool)
       : pouchOptionId;
+    const isCustomWidth = resolvedId === 'custom' || (typeof resolvedId === 'string' && resolvedId.startsWith('custom'));
     let pouch = MAG_POUCH_OPTIONS.find(p => p.id === resolvedId) || MAG_POUCH_OPTIONS[0];
-    const isCustomTape = tool.defaultClampDepth > 24;
 
-    // Resolve effective channel height (Y) from combined channel option (or override/default)
-    let rawHeight = (!isCustomWidth && pouch.nominalHeight)
-      ? pouch.nominalHeight
-      : (heightOverrideMm && heightOverrideMm !== 'auto' ? parseInt(heightOverrideMm, 10) : tool.defaultChannelHeight);
+    // Resolve effective channel height (Y) from explicit heightOverrideMm or combined channel option
+    let rawHeight = (heightOverrideMm && heightOverrideMm !== 'auto')
+      ? parseInt(heightOverrideMm, 10)
+      : ((!isCustomWidth && pouch.nominalHeight) ? pouch.nominalHeight : tool.defaultChannelHeight);
     let channelHeight = rawHeight <= 100 ? 100 : (rawHeight >= 150 ? 150 : 125);
 
-    // Resolve effective channel width (Z) and slots
+    // Resolve effective channel width (Z), depth (X), and slots
     let channelWidth = pouch.nominalWidth || 30;
+    let clampDepth = 24;
     let outerWidth = pouch.outerChannelWidth || (channelWidth + 4.0);
     let clampActualWidth = pouch.actualClampWidth || channelWidth;
     let slots = pouch.slots || 1;
     let slotLayout = pouch.slotLayout || [clampActualWidth];
     if (isCustomWidth) {
       const customW = Math.max(15, Math.min(120, parseInt(customWidthMm, 10) || tool.defaultChannelWidth || 45));
+      clampDepth = tool.defaultClampDepth || 24;
       channelWidth = customW;
       outerWidth = customW + 4.0;
       clampActualWidth = customW;
@@ -1154,7 +1159,7 @@ window.ULAW_CATALOG = (function () {
       slotLayout = [customW];
       pouch = {
         id: 'custom',
-        name: `Custom Width (${customW} mm) — ${channelHeight} mm Tall`,
+        name: `Custom Fit (${customW} × ${clampDepth} mm) — ${channelHeight} mm Tall`,
         shortCode: `${channelHeight}×${customW}`,
         nominalWidth: customW,
         nominalHeight: channelHeight,
@@ -1162,6 +1167,12 @@ window.ULAW_CATALOG = (function () {
         outerChannelWidth: customW + 4.0,
         slots: 1
       };
+    } else if (heightOverrideMm && heightOverrideMm !== 'auto') {
+      const prefix = resolvedId.startsWith('div_60_30_30')
+        ? 'div_60_30_30'
+        : (resolvedId.startsWith('single_60') ? 'single_60' : 'single_30');
+      const matchedPouch = MAG_POUCH_OPTIONS.find(p => p.id === `${prefix}_${channelHeight}`);
+      if (matchedPouch) pouch = matchedPouch;
     }
     let clampLanes = 1;
     let isMolle = false;
