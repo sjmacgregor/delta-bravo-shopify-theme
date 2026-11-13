@@ -1120,16 +1120,18 @@ window.ULAW_CATALOG = (function () {
     return MAG_POUCH_OPTIONS.some(p => p.id === id) ? id : MAG_POUCH_OPTIONS[0].id;
   }
 
-  function computeUlawConfiguration(tool, pouchOptionId, heightOverrideMm, markStyle) {
+  function computeUlawConfiguration(tool, pouchOptionId, heightOverrideMm, markStyle, customWidthMm) {
+    const isCustomWidth = pouchOptionId === 'custom' || (typeof pouchOptionId === 'string' && pouchOptionId.startsWith('custom'));
     const resolvedId = (!pouchOptionId || pouchOptionId === 'auto')
       ? getRecommendedChannelId(tool)
       : pouchOptionId;
-    const pouch = MAG_POUCH_OPTIONS.find(p => p.id === resolvedId) || MAG_POUCH_OPTIONS[0];
+    let pouch = MAG_POUCH_OPTIONS.find(p => p.id === resolvedId) || MAG_POUCH_OPTIONS[0];
     const isCustomTape = tool.defaultClampDepth > 24;
 
     // Resolve effective channel height (Y) from combined channel option (or override/default)
-    let rawHeight = pouch.nominalHeight
-      || (heightOverrideMm && heightOverrideMm !== 'auto' ? parseInt(heightOverrideMm, 10) : tool.defaultChannelHeight);
+    let rawHeight = (!isCustomWidth && pouch.nominalHeight)
+      ? pouch.nominalHeight
+      : (heightOverrideMm && heightOverrideMm !== 'auto' ? parseInt(heightOverrideMm, 10) : tool.defaultChannelHeight);
     let channelHeight = rawHeight <= 100 ? 100 : (rawHeight >= 150 ? 150 : 125);
 
     // Resolve effective channel width (Z) and slots
@@ -1138,6 +1140,24 @@ window.ULAW_CATALOG = (function () {
     let clampActualWidth = pouch.actualClampWidth || channelWidth;
     let slots = pouch.slots || 1;
     let slotLayout = pouch.slotLayout || [clampActualWidth];
+    if (isCustomWidth) {
+      const customW = Math.max(15, Math.min(120, parseInt(customWidthMm, 10) || tool.defaultChannelWidth || 45));
+      channelWidth = customW;
+      outerWidth = customW + 4.0;
+      clampActualWidth = customW;
+      slots = 1;
+      slotLayout = [customW];
+      pouch = {
+        id: 'custom',
+        name: `Custom Width (${customW} mm) — ${channelHeight} mm Tall`,
+        shortCode: `${channelHeight}×${customW}`,
+        nominalWidth: customW,
+        nominalHeight: channelHeight,
+        actualClampWidth: customW,
+        outerChannelWidth: customW + 4.0,
+        slots: 1
+      };
+    }
     let clampLanes = 1;
     let isMolle = false;
 

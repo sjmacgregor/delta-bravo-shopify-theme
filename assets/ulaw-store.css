@@ -607,6 +607,28 @@ button, input, select {
   border-color: var(--db-dark);
 }
 
+.db-custom-width {
+  margin-top: 8px;
+}
+
+.db-input {
+  width: 100%;
+  height: 46px;
+  padding: 0 14px;
+  border: 1.5px solid var(--db-border-strong);
+  border-radius: 8px;
+  background: var(--db-surface);
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--db-text);
+  box-sizing: border-box;
+}
+
+.db-input:focus {
+  outline: none;
+  border-color: var(--db-dark);
+}
+
 .db-add-btn {
   width: 100%;
   height: 52px;

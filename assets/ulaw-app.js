@@ -18,7 +18,8 @@
   const WIDTH_OPTIONS = ULAW_WIDTH_OPTIONS || [
     { id: 'single_30', widthMm: 30, name: '30 mm (1.18") — Pistol Mag Pouch Width' },
     { id: 'single_60', widthMm: 60, name: '60 mm (2.36") — Rifle Mag Pouch Width' },
-    { id: 'div_60_30_30', widthMm: 60, name: '60 mm (2.36") — 30/30 mm Divided Rifle Mag Pouch Width' }
+    { id: 'div_60_30_30', widthMm: 60, name: '60 mm (2.36") — 30/30 mm Divided Rifle Mag Pouch Width' },
+    { id: 'custom', widthMm: null, name: 'Custom Width (mm)' }
   ];
 
   function getDefaultPouchId(tool) {
@@ -41,6 +42,7 @@
     brand: TOOLS[0].brand,
     toolId: TOOLS[0].id,
     pouchId: getDefaultPouchId(TOOLS[0]),
+    customWidthMm: 45,
     customImage: null,
     cart: []
   };
@@ -87,7 +89,7 @@
   }
 
   function getActiveConfig() {
-    return computeUlawConfiguration(getSelectedTool(), state.pouchId, 'auto', 'inlay');
+    return computeUlawConfiguration(getSelectedTool(), state.pouchId, 'auto', 'inlay', state.customWidthMm);
   }
 
   // ==========================================================================
@@ -540,11 +542,29 @@
 
     document.getElementById('db-select-width')?.addEventListener('change', (e) => {
       const prefix = e.target.value || 'single_30';
-      const currentOpt = MAG_POUCH_OPTIONS.find(p => p.id === state.pouchId) || MAG_POUCH_OPTIONS[0];
-      const h = currentOpt.nominalHeight || 125;
-      const nextId = `${prefix}_${h}`;
-      state.pouchId = MAG_POUCH_OPTIONS.some(p => p.id === nextId) ? nextId : MAG_POUCH_OPTIONS[0].id;
-      renderProductPage();
+      if (prefix === 'custom') {
+        state.pouchId = 'custom';
+        renderProductPage();
+        document.getElementById('db-custom-width-input')?.focus();
+      } else {
+        const currentOpt = MAG_POUCH_OPTIONS.find(p => p.id === state.pouchId) || MAG_POUCH_OPTIONS[0];
+        const h = currentOpt.nominalHeight || 125;
+        const nextId = `${prefix}_${h}`;
+        state.pouchId = MAG_POUCH_OPTIONS.some(p => p.id === nextId) ? nextId : MAG_POUCH_OPTIONS[0].id;
+        renderProductPage();
+      }
+    });
+
+    document.getElementById('db-custom-width-input')?.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value, 10);
+      if (!isNaN(val)) {
+        state.customWidthMm = Math.max(15, Math.min(120, val));
+        const cfg = getActiveConfig();
+        const priceEl = document.getElementById('db-product-price');
+        if (priceEl) {
+          priceEl.textContent = formatPrice(cfg.unitPrice);
+        }
+      }
     });
 
     document.getElementById('db-add-btn')?.addEventListener('click', addToCart);
