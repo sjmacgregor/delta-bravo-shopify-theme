@@ -15,14 +15,138 @@
     searchTools
   } = window.ULAW_CATALOG;
 
-  const WIDTH_OPTIONS = ULAW_WIDTH_OPTIONS || [
-    { id: 'single_30', widthMm: 30, depthMm: 24, name: '30 × 24 mm — Pistol Mag Pouch Fit' },
-    { id: 'single_60', widthMm: 60, depthMm: 24, name: '60 × 24 mm — Rifle Mag Pouch Fit' },
-    { id: 'div_60_30_30', widthMm: 60, depthMm: 24, name: '60 × 24 mm — 30/30 mm Divided Rifle Pouch Fit' },
-    { id: 'custom', widthMm: null, depthMm: null, name: 'Custom Size (Non-Standard Tool / Pouch)' }
+  // Simple Tool Names for Home & Product Search Autofill (e.g. "Screwdriver")
+  const TOOL_TYPES = [
+    {
+      name: 'Screwdriver',
+      category: 'Screwdrivers',
+      keywords: ['screwdriver', 'screwdrivers', 'driver', 'phillips', 'flathead', 'slotted', 'kraftform', 'picofinish', 'stubby', 'ratcheting']
+    },
+    {
+      name: 'Pliers',
+      category: 'Pliers & Wrenches',
+      keywords: ['pliers', 'plier', 'cobra', 'twingrip', 'linesman', 'lineman', 'needle nose', 'diagonal', 'cutters', 'dykes', 'channellock', 'wire stripper', 'stripper']
+    },
+    {
+      name: 'Wrench',
+      category: 'Pliers & Wrenches',
+      keywords: ['wrench', 'wrenches', 'crescent', 'adjustable wrench', 'spud']
+    },
+    {
+      name: 'Utility Knife',
+      category: 'Utility & Folding Knives',
+      keywords: ['utility knife', 'knife', 'knives', 'fastback', 'box cutter', 'blade', '99e', 'folding knife']
+    },
+    {
+      name: 'Scissors & Shears',
+      category: 'Utility & Folding Knives',
+      keywords: ['scissors', 'shears', 'snips', 'offset scissors']
+    },
+    {
+      name: 'Multi-Tool',
+      category: 'Multi-Tools',
+      keywords: ['multi-tool', 'multitool', 'leatherman', 'wave', 'arc', 'skeletool', 'swisstool', 'victorinox']
+    },
+    {
+      name: 'Marker',
+      category: 'Markers & Pencils',
+      keywords: ['marker', 'markers', 'sharpie', 'ink', 'pica big', 'permanent marker']
+    },
+    {
+      name: 'Carpenter Pencil',
+      category: 'Markers & Pencils',
+      keywords: ['pencil', 'pencils', 'carpenter pencil', 'pica-dry', 'pica dry']
+    },
+    {
+      name: 'Tape Measure',
+      category: 'Tape Measures & Levels',
+      keywords: ['tape measure', 'tape', 'fatmax', 'powerlock', 'stud', 'bm 300']
+    },
+    {
+      name: 'Torpedo Level',
+      category: 'Tape Measures & Levels',
+      keywords: ['level', 'torpedo', 'torpedo level', 'spirit level', 'stabila', 'empire']
+    },
+    {
+      name: 'Wood Chisel',
+      category: 'Woodworking & Chisels',
+      keywords: ['chisel', 'chisels', 'wood chisel', 'bevel-edge', 'buck bros', 'narex']
+    }
   ];
 
-  const HEIGHT_OPTIONS = [100, 125, 150];
+  function getToolTypeForTool(tool) {
+    if (!tool) return TOOL_TYPES[0];
+    const m = (tool.model || '').toLowerCase();
+    if (m.includes('wrench')) return TOOL_TYPES.find(t => t.name === 'Wrench') || TOOL_TYPES[1];
+    if (m.includes('scissor') || m.includes('shear')) return TOOL_TYPES.find(t => t.name === 'Scissors & Shears') || TOOL_TYPES[3];
+    if (m.includes('pencil') || m.includes('pica-dry')) return TOOL_TYPES.find(t => t.name === 'Carpenter Pencil') || TOOL_TYPES[6];
+    if (m.includes('level')) return TOOL_TYPES.find(t => t.name === 'Torpedo Level') || TOOL_TYPES[8];
+    return TOOL_TYPES.find(t => t.category === tool.category) || TOOL_TYPES[0];
+  }
+
+  function getToolsForType(typeObj) {
+    if (!typeObj) return TOOLS;
+    if (typeObj.name === 'Wrench') {
+      const m = TOOLS.filter(t => t.category === 'Pliers & Wrenches' && t.model.toLowerCase().includes('wrench'));
+      if (m.length) return m;
+    } else if (typeObj.name === 'Pliers') {
+      const m = TOOLS.filter(t => t.category === 'Pliers & Wrenches' && !t.model.toLowerCase().includes('wrench'));
+      if (m.length) return m;
+    } else if (typeObj.name === 'Scissors & Shears') {
+      const m = TOOLS.filter(t => t.category === 'Utility & Folding Knives' && (t.model.toLowerCase().includes('scissor') || t.model.toLowerCase().includes('shear')));
+      if (m.length) return m;
+    } else if (typeObj.name === 'Utility Knife') {
+      const m = TOOLS.filter(t => t.category === 'Utility & Folding Knives' && !t.model.toLowerCase().includes('scissor'));
+      if (m.length) return m;
+    } else if (typeObj.name === 'Carpenter Pencil') {
+      const m = TOOLS.filter(t => t.category === 'Markers & Pencils' && t.model.toLowerCase().includes('pencil'));
+      if (m.length) return m;
+    } else if (typeObj.name === 'Marker') {
+      const m = TOOLS.filter(t => t.category === 'Markers & Pencils' && !t.model.toLowerCase().includes('pencil'));
+      if (m.length) return m;
+    } else if (typeObj.name === 'Torpedo Level') {
+      const m = TOOLS.filter(t => t.category === 'Tape Measures & Levels' && t.model.toLowerCase().includes('level'));
+      if (m.length) return m;
+    } else if (typeObj.name === 'Tape Measure') {
+      const m = TOOLS.filter(t => t.category === 'Tape Measures & Levels' && !t.model.toLowerCase().includes('level'));
+      if (m.length) return m;
+    }
+    const byCat = TOOLS.filter(t => t.category === typeObj.category);
+    return byCat.length ? byCat : TOOLS;
+  }
+
+  function matchToolTypes(query) {
+    const q = (query || '').trim().toLowerCase();
+    if (!q) return TOOL_TYPES;
+
+    const scored = TOOL_TYPES.map(typeObj => {
+      const nameLower = typeObj.name.toLowerCase();
+      let score = 0;
+      if (nameLower === q) score += 120;
+      else if (nameLower.startsWith(q)) score += 90;
+      else if (nameLower.includes(q)) score += 70;
+
+      for (const kw of typeObj.keywords) {
+        if (kw === q) score += 80;
+        else if (kw.startsWith(q)) score += 50;
+        else if (kw.includes(q) || q.includes(kw)) score += 30;
+      }
+
+      // Also check if a user typed a brand or model belonging to this tool type
+      const matchingTools = getToolsForType(typeObj);
+      for (const t of matchingTools) {
+        if (t.brand.toLowerCase().includes(q) || t.model.toLowerCase().includes(q) || t.mpn.toLowerCase().includes(q)) {
+          score += 25;
+          break;
+        }
+      }
+      return { typeObj, score };
+    })
+      .filter(item => item.score > 0)
+      .sort((a, b) => b.score - a.score);
+
+    return scored.map(s => s.typeObj);
+  }
 
   function getDefaultPouchId(tool) {
     if (typeof getRecommendedChannelId === 'function') {
@@ -39,23 +163,20 @@
     return MAG_POUCH_OPTIONS.some(p => p.id === id) ? id : MAG_POUCH_OPTIONS[0].id;
   }
 
-  function getToolRecommendedHeight(tool) {
-    if (!tool) return 125;
-    const hRaw = parseInt(tool.defaultChannelHeight, 10) || 125;
-    return hRaw <= 100 ? 100 : (hRaw >= 150 ? 150 : 125);
-  }
-
   const state = {
     view: 'home',
     query: '',
     results: [],
     activeIndex: -1,
+    productQuery: '',
+    productResults: [],
+    productActiveIndex: -1,
+    toolTypeName: getToolTypeForTool(TOOLS[0]).name,
     brand: TOOLS[0].brand,
     toolId: TOOLS[0].id,
     pouchId: getDefaultPouchId(TOOLS[0]),
     heightOverride: 'auto',
     customWidthMm: TOOLS[0].defaultChannelWidth || 45,
-    customizeOpen: false,
     customImage: null,
     cart: []
   };
@@ -91,7 +212,7 @@
 
   function highlightMatch(text, query) {
     if (!query || !query.trim()) return escapeHtml(text);
-    const tokens = query.trim().split(/\s+/).filter(t => t.length >= 2);
+    const tokens = query.trim().split(/\s+/).filter(t => t.length >= 1);
     if (!tokens.length) return escapeHtml(text);
     const rx = new RegExp(`(${tokens.map(escapeRegExp).join('|')})`, 'gi');
     return escapeHtml(text).replace(rx, '<mark>$1</mark>');
@@ -122,7 +243,7 @@
   }
 
   // ==========================================================================
-  // SEARCH & AUTOCOMPLETE
+  // HOME SEARCH & AUTOCOMPLETE (JUST THE TOOL NAME, E.G. "SCREWDRIVER")
   // ==========================================================================
   function updateAutocomplete(query) {
     state.query = query || '';
@@ -145,7 +266,7 @@
       return;
     }
 
-    const matches = searchTools(state.query).slice(0, 6);
+    const matches = matchToolTypes(state.query).slice(0, 6);
     state.results = matches;
     state.activeIndex = matches.length ? 0 : -1;
 
@@ -154,13 +275,12 @@
       return;
     }
 
-    listEl.innerHTML = matches.map((tool, idx) => `
-      <div class="db-ac-item ${idx === state.activeIndex ? 'is-active' : ''}" data-tool-id="${tool.id}" data-idx="${idx}">
+    // Autofill list showing ONLY the tool name (e.g. "Screwdriver")
+    listEl.innerHTML = matches.map((typeObj, idx) => `
+      <div class="db-ac-item ${idx === state.activeIndex ? 'is-active' : ''}" data-type-name="${escapeHtml(typeObj.name)}" data-idx="${idx}">
         <div class="db-ac-item__main">
-          <img class="db-ac-item__thumb" src="${tool.image}" alt="" />
-          <span class="db-ac-item__name">${highlightMatch(tool.brand + ' ' + tool.model, state.query)}</span>
+          <span class="db-ac-item__name">${highlightMatch(typeObj.name, state.query)}</span>
         </div>
-        <span class="db-ac-item__mpn">#${highlightMatch(tool.mpn, state.query)}</span>
       </div>
     `).join('');
 
@@ -169,7 +289,7 @@
     listEl.querySelectorAll('.db-ac-item').forEach(el => {
       el.addEventListener('mousedown', (e) => {
         e.preventDefault();
-        selectToolAndGo(el.getAttribute('data-tool-id'));
+        selectToolTypeAndGo(el.getAttribute('data-type-name'));
       });
       el.addEventListener('mouseenter', () => {
         state.activeIndex = parseInt(el.getAttribute('data-idx'), 10);
@@ -188,27 +308,123 @@
     document.getElementById('db-search-wrap')?.classList.remove('is-open');
   }
 
+  // ==========================================================================
+  // PRODUCT PAGE TOOL SEARCH & AUTOFILL
+  // ==========================================================================
+  function updateProductAutocomplete(query) {
+    state.productQuery = query || '';
+    const hasText = state.productQuery.trim().length > 0;
+
+    const clearBtn = document.getElementById('db-product-search-clear');
+    if (clearBtn) clearBtn.classList.toggle('is-visible', hasText);
+
+    const wrap = document.getElementById('db-product-search-wrap');
+    const listEl = document.getElementById('db-product-autocomplete');
+    if (!wrap || !listEl) return;
+
+    const matches = matchToolTypes(state.productQuery).slice(0, 8);
+    state.productResults = matches;
+    state.productActiveIndex = matches.length ? 0 : -1;
+
+    if (!matches.length) {
+      wrap.classList.remove('is-open');
+      return;
+    }
+
+    listEl.innerHTML = matches.map((typeObj, idx) => `
+      <div class="db-ac-item ${idx === state.productActiveIndex ? 'is-active' : ''}" data-type-name="${escapeHtml(typeObj.name)}" data-idx="${idx}">
+        <div class="db-ac-item__main">
+          <span class="db-ac-item__name">${highlightMatch(typeObj.name, state.productQuery)}</span>
+        </div>
+      </div>
+    `).join('');
+
+    wrap.classList.add('is-open');
+
+    listEl.querySelectorAll('.db-ac-item').forEach(el => {
+      el.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        applyToolTypeOnProductPage(el.getAttribute('data-type-name'));
+      });
+      el.addEventListener('mouseenter', () => {
+        state.productActiveIndex = parseInt(el.getAttribute('data-idx'), 10);
+        refreshProductActiveItem();
+      });
+    });
+  }
+
+  function refreshProductActiveItem() {
+    document.querySelectorAll('#db-product-autocomplete .db-ac-item').forEach((el, idx) => {
+      el.classList.toggle('is-active', idx === state.productActiveIndex);
+    });
+  }
+
+  function closeProductAutocomplete() {
+    document.getElementById('db-product-search-wrap')?.classList.remove('is-open');
+  }
+
+  function applyToolTypeOnProductPage(typeName) {
+    const typeObj = TOOL_TYPES.find(t => t.name.toLowerCase() === String(typeName || '').toLowerCase())
+      || matchToolTypes(typeName)[0]
+      || TOOL_TYPES[0];
+
+    state.toolTypeName = typeObj.name;
+    state.productQuery = typeObj.name;
+    const toolsInType = getToolsForType(typeObj);
+    const firstTool = toolsInType[0] || TOOLS[0];
+
+    state.brand = firstTool.brand;
+    state.toolId = firstTool.id;
+    state.pouchId = getDefaultPouchId(firstTool);
+    state.heightOverride = 'auto';
+    state.customWidthMm = firstTool.defaultChannelWidth || 45;
+    state.customImage = null;
+
+    const homeInput = document.getElementById('db-search-input');
+    if (homeInput) homeInput.value = typeObj.name;
+
+    closeProductAutocomplete();
+    renderProductPage();
+  }
+
+  function selectToolTypeAndGo(explicitTypeName) {
+    let typeObj = null;
+    if (explicitTypeName) {
+      typeObj = TOOL_TYPES.find(t => t.name.toLowerCase() === explicitTypeName.toLowerCase());
+    }
+    if (!typeObj && state.activeIndex >= 0 && state.results[state.activeIndex]) {
+      typeObj = state.results[state.activeIndex];
+    }
+    if (!typeObj && state.query && state.query.trim()) {
+      const matchedTypes = matchToolTypes(state.query);
+      if (matchedTypes.length) typeObj = matchedTypes[0];
+    }
+    if (!typeObj) return;
+
+    const homeInput = document.getElementById('db-search-input');
+    if (homeInput) homeInput.value = typeObj.name;
+
+    applyToolTypeOnProductPage(typeObj.name);
+    closeAutocomplete();
+    showView('product');
+  }
+
   function selectToolAndGo(explicitToolId) {
-    // Cannot do anything unless an explicit item is chosen or text was typed
     if (!explicitToolId && (!state.query || !state.query.trim())) {
       return;
     }
 
-    let matched = null;
-    if (explicitToolId) {
-      matched = TOOLS.find(t => t.id === explicitToolId);
-    } else if (state.activeIndex >= 0 && state.results[state.activeIndex]) {
-      matched = state.results[state.activeIndex];
-    } else if (state.query && state.query.trim()) {
-      const found = searchTools(state.query);
-      if (found.length) matched = found[0];
-    }
-
-    if (!matched) {
+    if (!explicitToolId) {
+      selectToolTypeAndGo(null);
       return;
     }
 
-    // Auto-populate brand, model, and recommended holster fit on the ULAW product page
+    const matched = TOOLS.find(t => t.id === explicitToolId);
+    if (!matched) return;
+
+    const typeObj = getToolTypeForTool(matched);
+    state.toolTypeName = typeObj.name;
+    state.productQuery = typeObj.name;
     state.brand = matched.brand;
     state.toolId = matched.id;
     state.pouchId = getDefaultPouchId(matched);
@@ -220,61 +436,8 @@
     showView('product');
   }
 
-  function updateFitSummaryCard(cfg) {
-    const { tool } = cfg;
-    const recId = getDefaultPouchId(tool);
-    const recHeight = getToolRecommendedHeight(tool);
-    const recPrefix = recId === 'custom'
-      ? 'custom'
-      : (recId.startsWith('single_60') ? 'single_60' : 'single_30');
-    const activePrefix = (state.pouchId === 'custom' || state.pouchId.startsWith('custom'))
-      ? 'custom'
-      : (state.pouchId.startsWith('div_60_30_30')
-        ? 'div_60_30_30'
-        : (state.pouchId.startsWith('single_60') ? 'single_60' : 'single_30'));
-
-    const isDefaultFit = activePrefix === recPrefix && cfg.channelHeight === recHeight;
-    const badgeEl = document.getElementById('db-fit-badge');
-    const sizeEl = document.getElementById('db-fit-size');
-    const subEl = document.getElementById('db-fit-sub');
-
-    if (badgeEl) {
-      if (recPrefix === 'custom' && activePrefix === 'custom') {
-        badgeEl.textContent = 'Custom Tool Fit (Auto-Sized)';
-      } else {
-        badgeEl.textContent = isDefaultFit ? 'Recommended Fit' : 'Customized Fit';
-      }
-    }
-
-    if (sizeEl) {
-      if (activePrefix === 'custom') {
-        sizeEl.textContent = `Custom (${cfg.channelWidth} × ${cfg.clampDepth} mm) · ${cfg.channelHeight} mm Tall`;
-      } else if (activePrefix === 'div_60_30_30') {
-        sizeEl.textContent = `60 × 24 mm (30/30 Divided) · ${cfg.channelHeight} mm Tall`;
-      } else if (activePrefix === 'single_60') {
-        sizeEl.textContent = `60 × 24 mm · ${cfg.channelHeight} mm Tall`;
-      } else {
-        sizeEl.textContent = `30 × 24 mm · ${cfg.channelHeight} mm Tall`;
-      }
-    }
-
-    if (subEl) {
-      if (activePrefix === 'custom') {
-        subEl.textContent = tool.defaultClampDepth > 24
-          ? `Oversized tool (${tool.defaultChannelWidth}×${tool.defaultClampDepth} mm) — exceeds standard 30×24 / 60×24`
-          : `Custom ${cfg.channelWidth} mm width holster`;
-      } else if (activePrefix === 'div_60_30_30') {
-        subEl.textContent = `Dual 30/30 mm Divided Rifle Mag Pouch Fit · Built for ${tool.brand} ${tool.model}`;
-      } else if (activePrefix === 'single_60') {
-        subEl.textContent = `Standard Rifle Mag Pouch Fit (60 × 24 mm) · Built for ${tool.brand} ${tool.model}`;
-      } else {
-        subEl.textContent = `Standard Pistol Mag Pouch Fit (30 × 24 mm) · Built for ${tool.brand} ${tool.model}`;
-      }
-    }
-  }
-
   // ==========================================================================
-  // ULAW PRODUCT PAGE
+  // ULAW PRODUCT PAGE (TOOL SEARCH + BRAND POP-DOWN + MODEL POP-DOWN ONLY)
   // ==========================================================================
   function renderProductPage() {
     const cfg = getActiveConfig();
@@ -311,78 +474,46 @@
       priceEl.textContent = formatPrice(cfg.unitPrice);
     }
 
-    // Brand Selector (Auto-populated)
+    // Product Page Tool Search Input
+    const typeObj = TOOL_TYPES.find(t => t.name === state.toolTypeName) || getToolTypeForTool(tool);
+    state.toolTypeName = typeObj.name;
+    const prodSearchInput = document.getElementById('db-product-search-input');
+    const prodClearBtn = document.getElementById('db-product-search-clear');
+    if (prodSearchInput && document.activeElement !== prodSearchInput) {
+      prodSearchInput.value = state.toolTypeName;
+      state.productQuery = state.toolTypeName;
+    }
+    if (prodClearBtn) {
+      prodClearBtn.classList.toggle('is-visible', Boolean(prodSearchInput && prodSearchInput.value));
+    }
+
+    // Filter Brands and Models to the selected Tool Type
+    const toolsInType = getToolsForType(typeObj);
+    const availableBrands = Array.from(new Set(toolsInType.map(t => t.brand)));
+    if (!availableBrands.includes(state.brand)) {
+      state.brand = availableBrands[0] || tool.brand;
+    }
+
+    // Brand Pop-Down
     const brandSelect = document.getElementById('db-select-brand');
     if (brandSelect) {
-      brandSelect.innerHTML = BRANDS.map(b => `
+      brandSelect.innerHTML = availableBrands.map(b => `
         <option value="${escapeHtml(b)}" ${b === state.brand ? 'selected' : ''}>${escapeHtml(b)}</option>
       `).join('');
     }
 
-    // Model Selector (Auto-populated & filtered by Brand)
+    // Model Pop-Down (filtered by Tool Type + Brand)
     const modelSelect = document.getElementById('db-select-model');
     if (modelSelect) {
-      const brandTools = TOOLS.filter(t => t.brand === state.brand);
+      let brandTools = toolsInType.filter(t => t.brand === state.brand);
+      if (!brandTools.length) {
+        brandTools = TOOLS.filter(t => t.brand === state.brand);
+      }
       modelSelect.innerHTML = brandTools.map(t => `
         <option value="${t.id}" ${t.id === state.toolId ? 'selected' : ''}>
-          ${escapeHtml(t.model)} (${escapeHtml(t.mpn)})
+          ${escapeHtml(t.model)}
         </option>
       `).join('');
-    }
-
-    // Recommended Fit Summary Card
-    updateFitSummaryCard(cfg);
-
-    // Channel Height Selector (100 / 125 / 150 mm with Recommended tag for tool)
-    const recHeight = getToolRecommendedHeight(tool);
-    const heightSelect = document.getElementById('db-select-height');
-    if (heightSelect) {
-      heightSelect.innerHTML = HEIGHT_OPTIONS.map(h => {
-        const label = h === recHeight
-          ? `${h} mm Tall (Recommended for ${tool.model})`
-          : `${h} mm Tall`;
-        return `<option value="${h}" ${h === cfg.channelHeight ? 'selected' : ''}>${escapeHtml(label)}</option>`;
-      }).join('');
-    }
-
-    // Holster Size Selector: 30x24, 60x24, 60x24 (30/30 Divided), or Custom
-    // Divided channel is never recommended; only 30x24, 60x24, or Custom (for oversized tools) is recommended
-    const recId = getDefaultPouchId(tool);
-    const recPrefix = recId === 'custom'
-      ? 'custom'
-      : (recId.startsWith('single_60') ? 'single_60' : 'single_30');
-    const activePrefix = (state.pouchId === 'custom' || state.pouchId.startsWith('custom'))
-      ? 'custom'
-      : (state.pouchId.startsWith('div_60_30_30')
-        ? 'div_60_30_30'
-        : (state.pouchId.startsWith('single_60') ? 'single_60' : 'single_30'));
-    const widthSelect = document.getElementById('db-select-width');
-    if (widthSelect) {
-      widthSelect.innerHTML = WIDTH_OPTIONS.map(w => {
-        const label = w.id === recPrefix
-          ? `${w.name} (Recommended)`
-          : w.name;
-        return `<option value="${w.id}" ${w.id === activePrefix ? 'selected' : ''}>${escapeHtml(label)}</option>`;
-      }).join('');
-    }
-
-    const customWrap = document.getElementById('db-custom-width-wrap');
-    const customInput = document.getElementById('db-custom-width-input');
-    if (customWrap) {
-      customWrap.style.display = activePrefix === 'custom' ? 'block' : 'none';
-    }
-    if (customInput && activePrefix === 'custom') {
-      customInput.value = state.customWidthMm;
-    }
-
-    const customizePanel = document.getElementById('db-customize-panel');
-    const customizeToggle = document.getElementById('db-customize-toggle');
-    if (customizePanel) {
-      customizePanel.style.display = state.customizeOpen ? 'block' : 'none';
-    }
-    if (customizeToggle) {
-      customizeToggle.setAttribute('aria-expanded', state.customizeOpen ? 'true' : 'false');
-      customizeToggle.innerHTML = state.customizeOpen ? 'Hide Options &#9652;' : 'Customize Fit &#9662;';
     }
   }
 
@@ -619,14 +750,63 @@
       });
     }
 
+    const prodSearchInput = document.getElementById('db-product-search-input');
+    const prodClearBtn = document.getElementById('db-product-search-clear');
+
+    if (prodSearchInput) {
+      prodSearchInput.addEventListener('input', (e) => {
+        updateProductAutocomplete(e.target.value);
+      });
+      prodSearchInput.addEventListener('focus', (e) => {
+        e.target.select();
+        updateProductAutocomplete(e.target.value);
+      });
+      prodSearchInput.addEventListener('keydown', (e) => {
+        const len = state.productResults.length;
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          const chosen = (state.productActiveIndex >= 0 && state.productResults[state.productActiveIndex])
+            ? state.productResults[state.productActiveIndex].name
+            : prodSearchInput.value;
+          if (chosen && chosen.trim()) {
+            applyToolTypeOnProductPage(chosen.trim());
+            prodSearchInput.blur();
+          }
+        } else if (e.key === 'ArrowDown' && len) {
+          e.preventDefault();
+          state.productActiveIndex = (state.productActiveIndex + 1) % len;
+          refreshProductActiveItem();
+        } else if (e.key === 'ArrowUp' && len) {
+          e.preventDefault();
+          state.productActiveIndex = (state.productActiveIndex - 1 + len) % len;
+          refreshProductActiveItem();
+        } else if (e.key === 'Escape') {
+          closeProductAutocomplete();
+          prodSearchInput.blur();
+        }
+      });
+    }
+
+    if (prodClearBtn && prodSearchInput) {
+      prodClearBtn.addEventListener('click', () => {
+        prodSearchInput.value = '';
+        updateProductAutocomplete('');
+        prodSearchInput.focus();
+      });
+    }
+
     document.addEventListener('click', (e) => {
       const wrap = document.getElementById('db-search-wrap');
       if (wrap && !wrap.contains(e.target)) closeAutocomplete();
+      const prodWrap = document.getElementById('db-product-search-wrap');
+      if (prodWrap && !prodWrap.contains(e.target)) closeProductAutocomplete();
     });
 
     document.getElementById('db-select-brand')?.addEventListener('change', (e) => {
       state.brand = e.target.value;
-      const firstMatch = TOOLS.find(t => t.brand === state.brand);
+      const typeObj = TOOL_TYPES.find(t => t.name === state.toolTypeName);
+      const toolsInType = getToolsForType(typeObj);
+      const firstMatch = toolsInType.find(t => t.brand === state.brand) || TOOLS.find(t => t.brand === state.brand);
       if (firstMatch) {
         state.toolId = firstMatch.id;
         state.pouchId = getDefaultPouchId(firstMatch);
@@ -647,54 +827,6 @@
       }
       state.customImage = null;
       renderProductPage();
-    });
-
-    document.getElementById('db-customize-toggle')?.addEventListener('click', () => {
-      state.customizeOpen = !state.customizeOpen;
-      renderProductPage();
-    });
-
-    document.getElementById('db-select-height')?.addEventListener('change', (e) => {
-      const h = parseInt(e.target.value, 10) || 125;
-      state.heightOverride = h;
-      if (state.pouchId !== 'custom' && !state.pouchId.startsWith('custom')) {
-        const prefix = state.pouchId.startsWith('div_60_30_30')
-          ? 'div_60_30_30'
-          : (state.pouchId.startsWith('single_60') ? 'single_60' : 'single_30');
-        const nextId = `${prefix}_${h}`;
-        if (MAG_POUCH_OPTIONS.some(p => p.id === nextId)) {
-          state.pouchId = nextId;
-        }
-      }
-      renderProductPage();
-    });
-
-    document.getElementById('db-select-width')?.addEventListener('change', (e) => {
-      const prefix = e.target.value || 'single_30';
-      if (prefix === 'custom') {
-        state.pouchId = 'custom';
-        renderProductPage();
-        document.getElementById('db-custom-width-input')?.focus();
-      } else {
-        const currentCfg = getActiveConfig();
-        const h = currentCfg.channelHeight || 125;
-        const nextId = `${prefix}_${h}`;
-        state.pouchId = MAG_POUCH_OPTIONS.some(p => p.id === nextId) ? nextId : MAG_POUCH_OPTIONS[0].id;
-        renderProductPage();
-      }
-    });
-
-    document.getElementById('db-custom-width-input')?.addEventListener('input', (e) => {
-      const val = parseInt(e.target.value, 10);
-      if (!isNaN(val)) {
-        state.customWidthMm = Math.max(15, Math.min(120, val));
-        const cfg = getActiveConfig();
-        const priceEl = document.getElementById('db-product-price');
-        if (priceEl) {
-          priceEl.textContent = formatPrice(cfg.unitPrice);
-        }
-        updateFitSummaryCard(cfg);
-      }
     });
 
     document.getElementById('db-add-btn')?.addEventListener('click', addToCart);

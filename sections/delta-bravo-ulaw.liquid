@@ -67,8 +67,8 @@
             type="text"
             id="db-search-input"
             class="db-search-input"
-            placeholder="Search tool, brand, model, or part #..."
-            aria-label="Search tool, brand, model, or part number"
+            placeholder="Search tool (e.g. Screwdriver, Pliers, Utility Knife)..."
+            aria-label="Search tool"
             autofocus
           />
           <button type="button" class="db-search-clear" id="db-search-clear" aria-label="Clear">✕</button>
@@ -109,44 +109,39 @@
             <span class="db-product-price" id="db-product-price">$8</span>
           </div>
 
+          <!-- Search Bar to change the tool you searched for -->
           <div class="db-field">
-            <label class="db-label" for="db-select-brand"><span class="db-step-badge">1</span> Brand</label>
+            <label class="db-label" for="db-product-search-input">Tool</label>
+            <div class="db-product-search-wrap" id="db-product-search-wrap">
+              <div class="db-product-search-box">
+                <span class="db-product-search-icon" aria-hidden="true">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  </svg>
+                </span>
+                <input
+                  type="text"
+                  id="db-product-search-input"
+                  class="db-product-search-input"
+                  placeholder="Search tool (e.g. Screwdriver, Pliers, Knife)..."
+                  aria-label="Change tool"
+                  autocomplete="off"
+                />
+                <button type="button" class="db-product-search-clear" id="db-product-search-clear" aria-label="Clear">✕</button>
+              </div>
+              <div class="db-autocomplete db-autocomplete--product" id="db-product-autocomplete" role="listbox"></div>
+            </div>
+          </div>
+
+          <div class="db-field">
+            <label class="db-label" for="db-select-brand">Brand</label>
             <select id="db-select-brand" class="db-select"></select>
           </div>
 
           <div class="db-field">
-            <label class="db-label" for="db-select-model"><span class="db-step-badge">2</span> Tool Model</label>
+            <label class="db-label" for="db-select-model">Model</label>
             <select id="db-select-model" class="db-select"></select>
-          </div>
-
-          <!-- Auto-Configured Holster Summary Card (Primary 90% Buyer Flow) -->
-          <div class="db-fit-card" id="db-fit-card">
-            <div class="db-fit-card__top">
-              <div class="db-fit-card__info">
-                <span class="db-fit-card__badge" id="db-fit-badge">Recommended Fit</span>
-                <div class="db-fit-card__size" id="db-fit-size">30 × 24 mm · 125 mm Tall</div>
-                <div class="db-fit-card__sub" id="db-fit-sub">Pistol Mag Pouch Fit · Ready for your tool</div>
-              </div>
-              <button type="button" class="db-fit-card__toggle" id="db-customize-toggle" aria-expanded="false">
-                Customize Fit &#9662;
-              </button>
-            </div>
-
-            <!-- Optional Overrides for Pouch Height or Holster Footprint -->
-            <div class="db-customize-panel" id="db-customize-panel" style="display:none;">
-              <div class="db-field db-field--compact">
-                <label class="db-label" for="db-select-height">Channel Height <span class="db-label__opt">(Match your pouch height)</span></label>
-                <select id="db-select-height" class="db-select"></select>
-              </div>
-
-              <div class="db-field db-field--compact">
-                <label class="db-label" for="db-select-width">Holster Size <span class="db-label__opt">(30×24, 60×24, or Custom)</span></label>
-                <select id="db-select-width" class="db-select"></select>
-                <div class="db-custom-width" id="db-custom-width-wrap" style="display:none;">
-                  <input type="number" id="db-custom-width-input" class="db-input" min="15" max="120" step="1" placeholder="Enter custom width in mm (e.g. 45)" />
-                </div>
-              </div>
-            </div>
           </div>
 
           <button type="button" class="db-add-btn" id="db-add-btn">

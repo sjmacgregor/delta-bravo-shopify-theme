@@ -710,6 +710,95 @@ button, input, select {
   margin-bottom: 0;
 }
 
+/* Product Page Tool Search Bar */
+.db-product-search-wrap {
+  position: relative;
+}
+
+.db-product-search-box {
+  display: flex;
+  align-items: center;
+  height: 46px;
+  padding: 0 12px;
+  border: 1.5px solid var(--db-border-strong);
+  border-radius: 8px;
+  background: var(--db-surface);
+  transition: border-color 0.15s ease;
+}
+
+.db-product-search-box:focus-within {
+  border-color: var(--db-dark);
+}
+
+.db-product-search-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--db-muted);
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.db-product-search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--db-text);
+  outline: none;
+  min-width: 0;
+}
+
+.db-product-search-input::placeholder {
+  color: var(--db-muted);
+  font-weight: 400;
+}
+
+.db-product-search-clear {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 50%;
+  background: var(--db-well);
+  color: var(--db-muted);
+  font-size: 0.75rem;
+  cursor: pointer;
+  margin-left: 6px;
+  flex-shrink: 0;
+}
+
+.db-product-search-clear.is-visible {
+  display: inline-flex;
+}
+
+.db-product-search-clear:hover {
+  color: var(--db-text);
+}
+
+.db-product-search-wrap .db-autocomplete--product {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 40;
+  background: var(--db-surface);
+  border: 1.5px solid var(--db-border-strong);
+  border-radius: 10px;
+  box-shadow: 0 14px 34px rgba(20, 21, 24, 0.12);
+  overflow: hidden;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.db-product-search-wrap.is-open .db-autocomplete--product {
+  display: block;
+}
+
 .db-add-btn {
   width: 100%;
   height: 52px;
