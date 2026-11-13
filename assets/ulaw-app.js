@@ -16,8 +16,9 @@
   } = window.ULAW_CATALOG;
 
   const WIDTH_OPTIONS = ULAW_WIDTH_OPTIONS || [
-    { widthMm: 30, name: '30 mm (1.18") — Pistol Mag Pouch Width' },
-    { widthMm: 60, name: '60 mm (2.36") — Rifle Mag Pouch Width' }
+    { id: 'single_30', widthMm: 30, name: '30 mm (1.18") — Pistol Mag Pouch Width' },
+    { id: 'single_60', widthMm: 60, name: '60 mm (2.36") — Rifle Mag Pouch Width' },
+    { id: 'div_60_30_30', widthMm: 60, name: '60 mm (2.36") — 30/30 mm Divided Rifle Mag Pouch Width' }
   ];
 
   function getDefaultPouchId(tool) {
@@ -266,29 +267,21 @@
       `).join('');
     }
 
-    // ULAW Width Selector (Pistol & Rifle Mag Pouch widths, with Recommended tag)
+    // ULAW Width Selector (Pistol 30mm, Rifle 60mm, and 60mm 30/30 Divided, with Recommended tag)
     const recId = getDefaultPouchId(tool);
-    const recOpt = MAG_POUCH_OPTIONS.find(p => p.id === recId) || MAG_POUCH_OPTIONS[0];
-    const recWidth = recOpt.nominalWidth || 30;
-    const activeWidth = cfg.channelWidth <= 30 ? 30 : 60;
+    const recPrefix = recId.startsWith('div_60_30_30')
+      ? 'div_60_30_30'
+      : (recId.startsWith('single_60') ? 'single_60' : 'single_30');
+    const activePrefix = state.pouchId.startsWith('div_60_30_30')
+      ? 'div_60_30_30'
+      : (state.pouchId.startsWith('single_60') ? 'single_60' : 'single_30');
     const widthSelect = document.getElementById('db-select-width');
     if (widthSelect) {
       widthSelect.innerHTML = WIDTH_OPTIONS.map(w => {
-        const label = w.widthMm === recWidth
+        const label = w.id === recPrefix
           ? `${w.name} (Recommended)`
           : w.name;
-        return `<option value="${w.widthMm}" ${w.widthMm === activeWidth ? 'selected' : ''}>${escapeHtml(label)}</option>`;
-      }).join('');
-    }
-
-    // Combined Channel & Height Selector (9 options: 3 channel types × 3 heights, with Recommended tag)
-    const pouchSelect = document.getElementById('db-select-pouch');
-    if (pouchSelect) {
-      pouchSelect.innerHTML = MAG_POUCH_OPTIONS.map(p => {
-        const label = p.id === recId
-          ? `${p.name} (Recommended)`
-          : p.name;
-        return `<option value="${p.id}" ${p.id === state.pouchId ? 'selected' : ''}>${escapeHtml(label)}</option>`;
+        return `<option value="${w.id}" ${w.id === activePrefix ? 'selected' : ''}>${escapeHtml(label)}</option>`;
       }).join('');
     }
   }
@@ -553,21 +546,11 @@
     });
 
     document.getElementById('db-select-width')?.addEventListener('change', (e) => {
-      const targetWidth = parseInt(e.target.value, 10) || 30;
+      const prefix = e.target.value || 'single_30';
       const currentOpt = MAG_POUCH_OPTIONS.find(p => p.id === state.pouchId) || MAG_POUCH_OPTIONS[0];
       const h = currentOpt.nominalHeight || 125;
-      if (targetWidth <= 30) {
-        state.pouchId = `single_30_${h}`;
-      } else {
-        const recId = getDefaultPouchId(getSelectedTool());
-        const prefix = recId.startsWith('div_60_30_30') ? 'div_60_30_30' : 'single_60';
-        state.pouchId = `${prefix}_${h}`;
-      }
-      renderProductPage();
-    });
-
-    document.getElementById('db-select-pouch')?.addEventListener('change', (e) => {
-      state.pouchId = e.target.value;
+      const nextId = `${prefix}_${h}`;
+      state.pouchId = MAG_POUCH_OPTIONS.some(p => p.id === nextId) ? nextId : MAG_POUCH_OPTIONS[0].id;
       renderProductPage();
     });
 

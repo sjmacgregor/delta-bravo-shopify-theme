@@ -7,15 +7,22 @@ window.ULAW_CATALOG = (function () {
   function __dbAsset(file) {
     return (window.ULAW_ASSET_URLS && window.ULAW_ASSET_URLS[file]) ? window.ULAW_ASSET_URLS[file] : ('assets/images/' + file);
   }
-  // ULAW Widths including Pistol & Rifle Mag Pouch widths
+  // ULAW Widths including Pistol, Rifle, and 30/30 Divided Rifle Mag Pouch widths
   const ULAW_WIDTH_OPTIONS = [
     {
+      id: 'single_30',
       widthMm: 30,
       name: '30 mm (1.18") — Pistol Mag Pouch Width'
     },
     {
+      id: 'single_60',
       widthMm: 60,
       name: '60 mm (2.36") — Rifle Mag Pouch Width'
+    },
+    {
+      id: 'div_60_30_30',
+      widthMm: 60,
+      name: '60 mm (2.36") — 30/30 mm Divided Rifle Mag Pouch Width'
     }
   ];
 
