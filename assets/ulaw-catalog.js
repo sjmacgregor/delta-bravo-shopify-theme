@@ -23,6 +23,11 @@ window.ULAW_CATALOG = (function () {
       id: 'div_60_30_30',
       widthMm: 60,
       name: '60 mm (2.36") — 30/30 mm Divided Rifle Mag Pouch Width'
+    },
+    {
+      id: 'custom',
+      widthMm: null,
+      name: 'Custom Width (mm)'
     }
   ];
 

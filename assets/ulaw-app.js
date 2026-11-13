@@ -262,14 +262,16 @@
       `).join('');
     }
 
-    // ULAW Width Selector (Pistol 30mm, Rifle 60mm, and 60mm 30/30 Divided, with Recommended tag)
+    // ULAW Width Selector (Pistol 30mm, Rifle 60mm, 60mm 30/30 Divided, and Custom Width, with Recommended tag)
     const recId = getDefaultPouchId(tool);
     const recPrefix = recId.startsWith('div_60_30_30')
       ? 'div_60_30_30'
       : (recId.startsWith('single_60') ? 'single_60' : 'single_30');
-    const activePrefix = state.pouchId.startsWith('div_60_30_30')
-      ? 'div_60_30_30'
-      : (state.pouchId.startsWith('single_60') ? 'single_60' : 'single_30');
+    const activePrefix = (state.pouchId === 'custom' || state.pouchId.startsWith('custom'))
+      ? 'custom'
+      : (state.pouchId.startsWith('div_60_30_30')
+        ? 'div_60_30_30'
+        : (state.pouchId.startsWith('single_60') ? 'single_60' : 'single_30'));
     const widthSelect = document.getElementById('db-select-width');
     if (widthSelect) {
       widthSelect.innerHTML = WIDTH_OPTIONS.map(w => {
@@ -278,6 +280,15 @@
           : w.name;
         return `<option value="${w.id}" ${w.id === activePrefix ? 'selected' : ''}>${escapeHtml(label)}</option>`;
       }).join('');
+    }
+
+    const customWrap = document.getElementById('db-custom-width-wrap');
+    const customInput = document.getElementById('db-custom-width-input');
+    if (customWrap) {
+      customWrap.style.display = activePrefix === 'custom' ? 'block' : 'none';
+    }
+    if (customInput && activePrefix === 'custom') {
+      customInput.value = state.customWidthMm;
     }
   }
 
