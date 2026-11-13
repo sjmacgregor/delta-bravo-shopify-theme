@@ -28,14 +28,7 @@
     if (!tool) return 'single_30_125';
     const hRaw = parseInt(tool.defaultChannelHeight, 10) || 125;
     const h = hRaw <= 100 ? 100 : (hRaw >= 150 ? 150 : 125);
-    let prefix = tool.defaultChannelWidth >= 60 ? 'single_60' : 'single_30';
-    if (tool.recommendedPouch && tool.recommendedPouch.startsWith('div_60')) {
-      prefix = 'div_60_30_30';
-    } else if (tool.recommendedPouch === 'single_60') {
-      prefix = 'single_60';
-    } else if (tool.recommendedPouch === 'single_30') {
-      prefix = 'single_30';
-    }
+    const prefix = tool.defaultChannelWidth >= 60 ? 'single_60' : 'single_30';
     const id = `${prefix}_${h}`;
     return MAG_POUCH_OPTIONS.some(p => p.id === id) ? id : MAG_POUCH_OPTIONS[0].id;
   }
