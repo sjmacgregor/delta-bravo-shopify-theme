@@ -1197,21 +1197,30 @@ window.ULAW_CATALOG = (function () {
     const channelMark = `${channelHeight}X${channelWidth}`;
 
     // Dynamic Price strictly based on Channel Dimensions:
-    // 30x100 is $5
-    // 30x125 and 30x150 is $5.50
-    // 60x100 is $7
-    // 60x125 and 150 is $8
-    function getHolsterPrice(width, height) {
+    // 30x100 is $8
+    // 30x125 and 30x150 is $9
+    // 60x100 is $10
+    // 60x125 and 60x150 is $11
+    // 60x100, 60x125, and 60x150 with 30x30 divider is $11
+    // Custom is $15
+    function getHolsterPrice(width, height, isCustom, isDivided) {
+      if (isCustom) {
+        return 15.00;
+      }
+      if (isDivided) {
+        return 11.00;
+      }
       const w = parseInt(width, 10) || 30;
       const h = parseInt(height, 10) || 125;
       if (w <= 30) {
-        return h <= 100 ? 5.00 : 5.50;
+        return h <= 100 ? 8.00 : 9.00;
       } else {
-        return h <= 100 ? 7.00 : 8.00;
+        return h <= 100 ? 10.00 : 11.00;
       }
     }
+    const isDividedChannel = (pouch && pouch.slots > 1) || (typeof resolvedId === 'string' && resolvedId.startsWith('div_60_30_30'));
     const effectivePouchForPrice = pouch;
-    const unitPrice = getHolsterPrice(channelWidth, channelHeight);
+    const unitPrice = getHolsterPrice(channelWidth, channelHeight, isCustomWidth || isCustomTape, isDividedChannel);
 
     // Active stability & special features summary
     const features = [];
