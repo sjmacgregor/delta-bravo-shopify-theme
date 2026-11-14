@@ -474,17 +474,14 @@
       priceEl.textContent = formatPrice(cfg.unitPrice);
     }
 
-    // Product Page Tool Search Input
+    // Tool Pop-Down
     const typeObj = TOOL_TYPES.find(t => t.name === state.toolTypeName) || getToolTypeForTool(tool);
     state.toolTypeName = typeObj.name;
-    const prodSearchInput = document.getElementById('db-product-search-input');
-    const prodClearBtn = document.getElementById('db-product-search-clear');
-    if (prodSearchInput && document.activeElement !== prodSearchInput) {
-      prodSearchInput.value = state.toolTypeName;
-      state.productQuery = state.toolTypeName;
-    }
-    if (prodClearBtn) {
-      prodClearBtn.classList.toggle('is-visible', Boolean(prodSearchInput && prodSearchInput.value));
+    const toolSelect = document.getElementById('db-select-tool');
+    if (toolSelect) {
+      toolSelect.innerHTML = TOOL_TYPES.map(t => `
+        <option value="${escapeHtml(t.name)}" ${t.name === state.toolTypeName ? 'selected' : ''}>${escapeHtml(t.name)}</option>
+      `).join('');
     }
 
     // Filter Brands and Models to the selected Tool Type
@@ -750,56 +747,13 @@
       });
     }
 
-    const prodSearchInput = document.getElementById('db-product-search-input');
-    const prodClearBtn = document.getElementById('db-product-search-clear');
-
-    if (prodSearchInput) {
-      prodSearchInput.addEventListener('input', (e) => {
-        updateProductAutocomplete(e.target.value);
-      });
-      prodSearchInput.addEventListener('focus', (e) => {
-        e.target.select();
-        updateProductAutocomplete(e.target.value);
-      });
-      prodSearchInput.addEventListener('keydown', (e) => {
-        const len = state.productResults.length;
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          const chosen = (state.productActiveIndex >= 0 && state.productResults[state.productActiveIndex])
-            ? state.productResults[state.productActiveIndex].name
-            : prodSearchInput.value;
-          if (chosen && chosen.trim()) {
-            applyToolTypeOnProductPage(chosen.trim());
-            prodSearchInput.blur();
-          }
-        } else if (e.key === 'ArrowDown' && len) {
-          e.preventDefault();
-          state.productActiveIndex = (state.productActiveIndex + 1) % len;
-          refreshProductActiveItem();
-        } else if (e.key === 'ArrowUp' && len) {
-          e.preventDefault();
-          state.productActiveIndex = (state.productActiveIndex - 1 + len) % len;
-          refreshProductActiveItem();
-        } else if (e.key === 'Escape') {
-          closeProductAutocomplete();
-          prodSearchInput.blur();
-        }
-      });
-    }
-
-    if (prodClearBtn && prodSearchInput) {
-      prodClearBtn.addEventListener('click', () => {
-        prodSearchInput.value = '';
-        updateProductAutocomplete('');
-        prodSearchInput.focus();
-      });
-    }
-
     document.addEventListener('click', (e) => {
       const wrap = document.getElementById('db-search-wrap');
       if (wrap && !wrap.contains(e.target)) closeAutocomplete();
-      const prodWrap = document.getElementById('db-product-search-wrap');
-      if (prodWrap && !prodWrap.contains(e.target)) closeProductAutocomplete();
+    });
+
+    document.getElementById('db-select-tool')?.addEventListener('change', (e) => {
+      applyToolTypeOnProductPage(e.target.value);
     });
 
     document.getElementById('db-select-brand')?.addEventListener('change', (e) => {
