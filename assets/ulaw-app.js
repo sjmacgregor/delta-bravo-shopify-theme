@@ -783,6 +783,27 @@
       renderProductPage();
     });
 
+    document.getElementById('db-select-pouch')?.addEventListener('change', (e) => {
+      state.pouchId = e.target.value || 'single_30_125';
+      state.heightOverride = 'auto';
+      renderProductPage();
+      if (state.pouchId === 'custom') {
+        document.getElementById('db-custom-width-input')?.focus();
+      }
+    });
+
+    document.getElementById('db-custom-width-input')?.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value, 10);
+      if (!isNaN(val)) {
+        state.customWidthMm = Math.max(15, Math.min(120, val));
+        const cfg = getActiveConfig();
+        const priceEl = document.getElementById('db-product-price');
+        if (priceEl) {
+          priceEl.textContent = formatPrice(cfg.unitPrice);
+        }
+      }
+    });
+
     document.getElementById('db-add-btn')?.addEventListener('click', addToCart);
     document.getElementById('db-cart-btn')?.addEventListener('click', openCart);
     document.getElementById('db-drawer-close')?.addEventListener('click', closeCart);
