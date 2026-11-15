@@ -515,55 +515,54 @@
   }
 
   // ==========================================================================
-  // CART & BOGO DEAL (BUY 1 GET 1 FREE ON FIRST 10 ITEMS BOUGHT)
+  // CART & PROMO DEAL (50% OFF / HALF OFF ONLY FOR THE FIRST 2 ITEMS BOUGHT)
   // ==========================================================================
-  const BOGO_MAX_DEALS = 10; // First 10 items bought get 1 free item each (up to 10 free items)
+  const PROMO_MAX_ITEMS = 2; // Only the first 2 items bought get 50% off
+  const PROMO_DISCOUNT_RATE = 0.5; // Half off (50% off)
 
   function computeCartBogo(cart) {
     let unitIndex = 0;
     let subtotal = 0;
     let discount = 0;
-    let freeCount = 0;
-    let paidCount = 0;
+    let discountedCount = 0;
 
     const rowBreakdown = cart.map(item => {
-      let rowPaidQty = 0;
-      let rowFreeQty = 0;
+      let rowHalfOffQty = 0;
+      let rowFullPriceQty = 0;
       const qty = Math.max(0, parseInt(item.qty, 10) || 0);
       for (let u = 0; u < qty; u++) {
         unitIndex += 1;
         subtotal += item.price;
-        // Every 2nd unit up to 10 BOGO pairs (20 units: 10 bought + 10 free) is FREE
-        if (unitIndex <= BOGO_MAX_DEALS * 2 && unitIndex % 2 === 0) {
-          rowFreeQty += 1;
-          freeCount += 1;
-          discount += item.price;
+        // Only the first 2 items in the cart get 50% off (half off)
+        if (unitIndex <= PROMO_MAX_ITEMS) {
+          rowHalfOffQty += 1;
+          discountedCount += 1;
+          discount += item.price * PROMO_DISCOUNT_RATE;
         } else {
-          rowPaidQty += 1;
-          paidCount += 1;
+          rowFullPriceQty += 1;
         }
       }
+      const rowSubtotal = item.price * qty;
+      const rowDiscount = item.price * PROMO_DISCOUNT_RATE * rowHalfOffQty;
       return {
-        rowSubtotal: item.price * qty,
-        rowDiscount: item.price * rowFreeQty,
-        rowTotal: item.price * rowPaidQty,
-        rowPaidQty,
-        rowFreeQty
+        rowSubtotal,
+        rowDiscount,
+        rowTotal: Math.max(0, rowSubtotal - rowDiscount),
+        rowHalfOffQty,
+        rowFullPriceQty
       };
     });
 
     const totalQty = unitIndex;
-    const hasUnclaimedFree = totalQty > 0 && totalQty < BOGO_MAX_DEALS * 2 && totalQty % 2 === 1;
+    const remainingHalfOff = Math.max(0, PROMO_MAX_ITEMS - discountedCount);
 
     return {
       totalQty,
-      paidCount,
-      freeCount,
+      discountedCount,
+      remainingHalfOff,
       subtotal,
       discount,
       total: Math.max(0, subtotal - discount),
-      hasUnclaimedFree,
-      dealsRemaining: Math.max(0, BOGO_MAX_DEALS - freeCount),
       rowBreakdown
     };
   }
@@ -595,7 +594,7 @@
     renderCart();
     openCart();
 
-    const bogo = computeCartBogo(state.cart);
+    const promo = computeCartBogo(state.cart);
 
     // Live Shopify Cart API Integration (POST /cart/add.js)
     const variantId = window.SHOPIFY_VARIANT_ID || document.querySelector('[data-shopify-variant-id]')?.getAttribute('data-shopify-variant-id');
@@ -613,7 +612,7 @@
               'Part Number': tool.mpn,
               'Channel': cfg.pouch.name,
               'Holster Spec': `ULAW ${cfg.clampMark} · ${cfg.channelMark}`,
-              'Promo Deal': `Buy 1 Get 1 Free (First 10 Items — ${bogo.freeCount} Free in Cart)`
+              'Promo Deal': `50% Off First 2 Items (${promo.discountedCount}/2 Half-Off Applied)`
             }
           }]
         })
@@ -622,8 +621,8 @@
   }
 
   function renderCart() {
-    const bogo = computeCartBogo(state.cart);
-    const count = bogo.totalQty;
+    const promo = computeCartBogo(state.cart);
+    const count = promo.totalQty;
 
     const cartBtn = document.getElementById('db-cart-btn');
     const countEl = document.getElementById('db-cart-count');
@@ -638,18 +637,18 @@
     const totalEl = document.getElementById('db-cart-total');
 
     if (subtotalRowEl && subtotalEl) {
-      subtotalRowEl.style.display = bogo.discount > 0 ? 'flex' : 'none';
-      subtotalEl.textContent = formatPrice(bogo.subtotal);
+      subtotalRowEl.style.display = promo.discount > 0 ? 'flex' : 'none';
+      subtotalEl.textContent = formatPrice(promo.subtotal);
     }
     if (discountRowEl && discountEl) {
-      discountRowEl.style.display = bogo.discount > 0 ? 'flex' : 'none';
+      discountRowEl.style.display = promo.discount > 0 ? 'flex' : 'none';
       if (discountLabelEl) {
-        discountLabelEl.textContent = `BOGO Deal (${bogo.freeCount} Free)`;
+        discountLabelEl.textContent = `50% Off (${promo.discountedCount} of ${PROMO_MAX_ITEMS} item${promo.discountedCount > 1 ? 's' : ''})`;
       }
-      discountEl.textContent = `-${formatPrice(bogo.discount)}`;
+      discountEl.textContent = `-${formatPrice(promo.discount)}`;
     }
     if (totalEl) {
-      totalEl.textContent = formatPrice(bogo.total);
+      totalEl.textContent = formatPrice(promo.total);
     }
 
     const bannerEl = document.getElementById('db-cart-bogo-banner');
@@ -657,34 +656,22 @@
       if (count === 0) {
         bannerEl.innerHTML = `
           <div class="db-bogo-note">
-            <span class="db-bogo-note__badge">BOGO DEAL</span>
-            <span><strong>Buy 1 Get 1 FREE</strong> on the first 10 items you buy!</span>
+            <span class="db-bogo-note__badge">50% OFF</span>
+            <span><strong>Half Off (50% OFF)</strong> on the first 2 items you buy!</span>
           </div>
         `;
-      } else if (bogo.hasUnclaimedFree) {
-        bannerEl.innerHTML = `
-          <div class="db-bogo-note db-bogo-note--action">
-            <div class="db-bogo-note__top">
-              <span class="db-bogo-note__badge">1 FREE UNLOCKED</span>
-              <span>Your next holster is <strong>FREE</strong> (${bogo.freeCount + 1} of ${BOGO_MAX_DEALS} BOGO deals)!</span>
-            </div>
-            <button type="button" class="db-bogo-claim-btn" id="db-bogo-claim-btn">
-              + Add 1 Free Holster ($0)
-            </button>
-          </div>
-        `;
-        bannerEl.querySelector('#db-bogo-claim-btn')?.addEventListener('click', () => {
-          if (state.cart.length > 0) {
-            state.cart[state.cart.length - 1].qty += 1;
-            saveCart();
-            renderCart();
-          }
-        });
-      } else if (bogo.freeCount > 0) {
+      } else if (promo.remainingHalfOff > 0) {
         bannerEl.innerHTML = `
           <div class="db-bogo-note db-bogo-note--applied">
-            <span class="db-bogo-note__badge">BOGO APPLIED</span>
-            <span><strong>${bogo.freeCount} FREE holster${bogo.freeCount > 1 ? 's' : ''}</strong> (-${formatPrice(bogo.discount)}) · ${bogo.freeCount}/${BOGO_MAX_DEALS} BOGO deals used</span>
+            <span class="db-bogo-note__badge">50% OFF APPLIED</span>
+            <span><strong>1 of 2 Half-Off items</strong> in cart (-${formatPrice(promo.discount)}) · Add 1 more item for <strong>50% OFF</strong>!</span>
+          </div>
+        `;
+      } else {
+        bannerEl.innerHTML = `
+          <div class="db-bogo-note db-bogo-note--applied">
+            <span class="db-bogo-note__badge">50% OFF APPLIED</span>
+            <span><strong>2 of 2 Half-Off items</strong> applied (-${formatPrice(promo.discount)} saved on first 2 items)</span>
           </div>
         `;
       }
@@ -699,12 +686,12 @@
     }
 
     listEl.innerHTML = state.cart.map((item, idx) => {
-      const rb = bogo.rowBreakdown[idx];
-      const priceHtml = rb.rowFreeQty > 0
-        ? `<span class="db-cart-row__strike">${formatPrice(rb.rowSubtotal)}</span> <span class="db-cart-row__final">${rb.rowTotal === 0 ? 'FREE' : formatPrice(rb.rowTotal)}</span>`
+      const rb = promo.rowBreakdown[idx];
+      const priceHtml = rb.rowHalfOffQty > 0
+        ? `<span class="db-cart-row__strike">${formatPrice(rb.rowSubtotal)}</span> <span class="db-cart-row__final">${formatPrice(rb.rowTotal)}</span>`
         : `${formatPrice(rb.rowSubtotal)}`;
-      const freeBadgeHtml = rb.rowFreeQty > 0
-        ? `<span class="db-cart-row__bogo-tag">${rb.rowFreeQty} FREE (BOGO)</span>`
+      const discountBadgeHtml = rb.rowHalfOffQty > 0
+        ? `<span class="db-cart-row__bogo-tag">${rb.rowHalfOffQty === item.qty ? '50% OFF' : `${rb.rowHalfOffQty} @ 50% OFF`}</span>`
         : '';
 
       return `
@@ -713,7 +700,7 @@
           <div class="db-cart-row__info">
             <div class="db-cart-row__title">
               <span>${escapeHtml(item.title)} — ${priceHtml}</span>
-              ${freeBadgeHtml}
+              ${discountBadgeHtml}
             </div>
             <div class="db-cart-row__meta">${escapeHtml(item.brand)} ${escapeHtml(item.model)} (#${escapeHtml(item.mpn)})</div>
             <div class="db-cart-row__controls">
