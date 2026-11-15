@@ -612,7 +612,7 @@
               'Part Number': tool.mpn,
               'Channel': cfg.pouch.name,
               'Holster Spec': `ULAW ${cfg.clampMark} · ${cfg.channelMark}`,
-              'Promo Deal': `50% Off First 2 Items (${promo.discountedCount}/2 Half-Off Applied)`
+              'Promo Deal': 'Buy One Get One Free'
             }
           }]
         })
@@ -643,7 +643,7 @@
     if (discountRowEl && discountEl) {
       discountRowEl.style.display = promo.discount > 0 ? 'flex' : 'none';
       if (discountLabelEl) {
-        discountLabelEl.textContent = `50% Off (${promo.discountedCount} of ${PROMO_MAX_ITEMS} item${promo.discountedCount > 1 ? 's' : ''})`;
+        discountLabelEl.textContent = 'Buy One Get One Free';
       }
       discountEl.textContent = `-${formatPrice(promo.discount)}`;
     }
@@ -656,22 +656,15 @@
       if (count === 0) {
         bannerEl.innerHTML = `
           <div class="db-bogo-note">
-            <span class="db-bogo-note__badge">50% OFF</span>
-            <span><strong>Half Off (50% OFF)</strong> on the first 2 items you buy!</span>
-          </div>
-        `;
-      } else if (promo.remainingHalfOff > 0) {
-        bannerEl.innerHTML = `
-          <div class="db-bogo-note db-bogo-note--applied">
-            <span class="db-bogo-note__badge">50% OFF APPLIED</span>
-            <span><strong>1 of 2 Half-Off items</strong> in cart (-${formatPrice(promo.discount)}) · Add 1 more item for <strong>50% OFF</strong>!</span>
+            <span class="db-bogo-note__badge">DEAL</span>
+            <span><strong>Buy One Get One Free</strong></span>
           </div>
         `;
       } else {
         bannerEl.innerHTML = `
           <div class="db-bogo-note db-bogo-note--applied">
-            <span class="db-bogo-note__badge">50% OFF APPLIED</span>
-            <span><strong>2 of 2 Half-Off items</strong> applied (-${formatPrice(promo.discount)} saved on first 2 items)</span>
+            <span class="db-bogo-note__badge">DEAL APPLIED</span>
+            <span><strong>Buy One Get One Free</strong> (-${formatPrice(promo.discount)} saved)</span>
           </div>
         `;
       }
@@ -691,7 +684,7 @@
         ? `<span class="db-cart-row__strike">${formatPrice(rb.rowSubtotal)}</span> <span class="db-cart-row__final">${formatPrice(rb.rowTotal)}</span>`
         : `${formatPrice(rb.rowSubtotal)}`;
       const discountBadgeHtml = rb.rowHalfOffQty > 0
-        ? `<span class="db-cart-row__bogo-tag">${rb.rowHalfOffQty === item.qty ? '50% OFF' : `${rb.rowHalfOffQty} @ 50% OFF`}</span>`
+        ? `<span class="db-cart-row__bogo-tag">Buy 1 Get 1 Free</span>`
         : '';
 
       return `
