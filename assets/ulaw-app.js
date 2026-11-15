@@ -515,51 +515,53 @@
   }
 
   // ==========================================================================
-  // CART & PROMO DEAL (50% OFF / HALF OFF ONLY FOR THE FIRST 2 ITEMS BOUGHT)
+  // CART & FIRST ORDER BOGO DEAL (BUY 1 GET 1 FREE — MAX 1 FREE ULAW PER ORDER)
   // ==========================================================================
-  const PROMO_MAX_ITEMS = 2; // Only the first 2 items bought get 50% off
-  const PROMO_DISCOUNT_RATE = 0.5; // Half off (50% off)
+  const BOGO_MAX_FREE_ULAWS = 1; // Limit 1 free ULAW on the first order (buying 8 ULAWs = 1 free, 7 paid)
 
   function computeCartBogo(cart) {
     let unitIndex = 0;
     let subtotal = 0;
     let discount = 0;
-    let discountedCount = 0;
+    let freeCount = 0;
+    let paidCount = 0;
 
     const rowBreakdown = cart.map(item => {
-      let rowHalfOffQty = 0;
-      let rowFullPriceQty = 0;
+      let rowPaidQty = 0;
+      let rowFreeQty = 0;
       const qty = Math.max(0, parseInt(item.qty, 10) || 0);
       for (let u = 0; u < qty; u++) {
         unitIndex += 1;
         subtotal += item.price;
-        // Only the first 2 items in the cart get 50% off (half off)
-        if (unitIndex <= PROMO_MAX_ITEMS) {
-          rowHalfOffQty += 1;
-          discountedCount += 1;
-          discount += item.price * PROMO_DISCOUNT_RATE;
+        // Buy 1 Get 1 Free on first order, capped at 1 free ULAW total (the 2nd unit is FREE)
+        if (unitIndex === 2 && freeCount < BOGO_MAX_FREE_ULAWS) {
+          rowFreeQty += 1;
+          freeCount += 1;
+          discount += item.price;
         } else {
-          rowFullPriceQty += 1;
+          rowPaidQty += 1;
+          paidCount += 1;
         }
       }
       const rowSubtotal = item.price * qty;
-      const rowDiscount = item.price * PROMO_DISCOUNT_RATE * rowHalfOffQty;
+      const rowDiscount = item.price * rowFreeQty;
       return {
         rowSubtotal,
         rowDiscount,
         rowTotal: Math.max(0, rowSubtotal - rowDiscount),
-        rowHalfOffQty,
-        rowFullPriceQty
+        rowPaidQty,
+        rowFreeQty
       };
     });
 
     const totalQty = unitIndex;
-    const remainingHalfOff = Math.max(0, PROMO_MAX_ITEMS - discountedCount);
+    const canClaimFreeSecond = totalQty === 1 && freeCount === 0;
 
     return {
       totalQty,
-      discountedCount,
-      remainingHalfOff,
+      paidCount,
+      freeCount,
+      canClaimFreeSecond,
       subtotal,
       discount,
       total: Math.max(0, subtotal - discount),
@@ -612,7 +614,7 @@
               'Part Number': tool.mpn,
               'Channel': cfg.pouch.name,
               'Holster Spec': `ULAW ${cfg.clampMark} · ${cfg.channelMark}`,
-              'Promo Deal': 'Buy One Get One Free'
+              'Promo Deal': `First Order Buy 1 Get 1 Free (${promo.freeCount}/1 Free ULAW Applied)`
             }
           }]
         })
@@ -643,7 +645,7 @@
     if (discountRowEl && discountEl) {
       discountRowEl.style.display = promo.discount > 0 ? 'flex' : 'none';
       if (discountLabelEl) {
-        discountLabelEl.textContent = 'Buy One Get One Free';
+        discountLabelEl.textContent = 'First Order BOGO (1 Free)';
       }
       discountEl.textContent = `-${formatPrice(promo.discount)}`;
     }
@@ -656,15 +658,34 @@
       if (count === 0) {
         bannerEl.innerHTML = `
           <div class="db-bogo-note">
-            <span class="db-bogo-note__badge">DEAL</span>
-            <span><strong>Buy One Get One Free</strong></span>
+            <span class="db-bogo-note__badge">FIRST ORDER</span>
+            <span><strong>Buy One Get One Free</strong> on your first order (limit 1 free ULAW)!</span>
           </div>
         `;
+      } else if (promo.canClaimFreeSecond) {
+        bannerEl.innerHTML = `
+          <div class="db-bogo-note db-bogo-note--action">
+            <div class="db-bogo-note__top">
+              <span class="db-bogo-note__badge">1 FREE UNLOCKED</span>
+              <span>First Order Deal: Your 2nd ULAW is <strong>FREE</strong>!</span>
+            </div>
+            <button type="button" class="db-bogo-claim-btn" id="db-bogo-claim-btn">
+              + Add 1 Free ULAW ($0)
+            </button>
+          </div>
+        `;
+        bannerEl.querySelector('#db-bogo-claim-btn')?.addEventListener('click', () => {
+          if (state.cart.length > 0) {
+            state.cart[state.cart.length - 1].qty += 1;
+            saveCart();
+            renderCart();
+          }
+        });
       } else {
         bannerEl.innerHTML = `
           <div class="db-bogo-note db-bogo-note--applied">
-            <span class="db-bogo-note__badge">DEAL APPLIED</span>
-            <span><strong>Buy One Get One Free</strong> (-${formatPrice(promo.discount)} saved)</span>
+            <span class="db-bogo-note__badge">BOGO APPLIED</span>
+            <span><strong>1 FREE ULAW</strong> applied (-${formatPrice(promo.discount)}) · Limit 1 free on first order</span>
           </div>
         `;
       }
@@ -680,11 +701,11 @@
 
     listEl.innerHTML = state.cart.map((item, idx) => {
       const rb = promo.rowBreakdown[idx];
-      const priceHtml = rb.rowHalfOffQty > 0
-        ? `<span class="db-cart-row__strike">${formatPrice(rb.rowSubtotal)}</span> <span class="db-cart-row__final">${formatPrice(rb.rowTotal)}</span>`
+      const priceHtml = rb.rowFreeQty > 0
+        ? `<span class="db-cart-row__strike">${formatPrice(rb.rowSubtotal)}</span> <span class="db-cart-row__final">${rb.rowTotal === 0 ? 'FREE' : formatPrice(rb.rowTotal)}</span>`
         : `${formatPrice(rb.rowSubtotal)}`;
-      const discountBadgeHtml = rb.rowHalfOffQty > 0
-        ? `<span class="db-cart-row__bogo-tag">Buy 1 Get 1 Free</span>`
+      const discountBadgeHtml = rb.rowFreeQty > 0
+        ? `<span class="db-cart-row__bogo-tag">1 FREE (BOGO)</span>`
         : '';
 
       return `
