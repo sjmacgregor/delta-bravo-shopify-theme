@@ -930,11 +930,269 @@ button, input, select {
   border-top: 1px solid var(--db-border);
 }
 
+.db-drawer__summary {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.db-drawer__line {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.88rem;
+  color: var(--db-muted);
+}
+
+.db-drawer__line--discount {
+  color: #C81E1E;
+  font-weight: 600;
+}
+
 .db-drawer__total {
   display: flex;
   justify-content: space-between;
   font-weight: 700;
-  margin-bottom: 14px;
+  font-size: 1.05rem;
+  padding-top: 6px;
+  border-top: 1px dashed var(--db-border);
+}
+
+/* ==========================================================================
+   BOGO DEAL (BUY 1 GET 1 FREE ON FIRST 10 ITEMS)
+   ========================================================================== */
+.db-header__right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.db-bogo-header-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px 5px 7px;
+  border-radius: 999px;
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+  font-size: 0.8rem;
+  color: #991B1B;
+  font-weight: 600;
+}
+
+.db-bogo-header-pill__tag {
+  background: #DC2626;
+  color: #FFFFFF;
+  font-family: var(--db-font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 2px 7px;
+  border-radius: 999px;
+}
+
+.db-bogo-home-banner {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px 8px 10px;
+  border-radius: 999px;
+  background: #FFFFFF;
+  border: 1.5px solid #FCA5A5;
+  box-shadow: 0 6px 18px rgba(220, 38, 38, 0.08);
+  font-size: 0.9rem;
+  color: var(--db-text);
+  margin-top: -8px;
+  margin-bottom: -4px;
+}
+
+.db-bogo-home-banner__badge {
+  background: linear-gradient(180deg, #E02424 0%, #B91C1C 100%);
+  color: #FFFFFF;
+  font-family: var(--db-font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 3px 9px;
+  border-radius: 999px;
+}
+
+.db-bogo-home-banner__copy strong {
+  color: #C81E1E;
+}
+
+.db-product-bogo-box {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 12px 14px;
+  margin-bottom: 18px;
+  border-radius: 10px;
+  background: #FEF2F2;
+  border: 1.5px solid #FECACA;
+}
+
+.db-product-bogo-box__pill {
+  align-self: flex-start;
+  background: linear-gradient(180deg, #E02424 0%, #B91C1C 100%);
+  color: #FFFFFF;
+  font-family: var(--db-font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.db-product-bogo-box__text {
+  font-size: 0.84rem;
+  font-weight: 500;
+  color: #7F1D1D;
+  line-height: 1.35;
+}
+
+.db-drawer__bogo {
+  padding: 12px 24px 0;
+}
+
+.db-bogo-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+  font-size: 0.8rem;
+  color: #7F1D1D;
+  line-height: 1.35;
+}
+
+.db-bogo-note--action {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.db-bogo-note__top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.db-bogo-note--applied {
+  background: #ECFDF5;
+  border-color: #A7F3D0;
+  color: #065F46;
+}
+
+.db-bogo-note__badge {
+  flex-shrink: 0;
+  background: #DC2626;
+  color: #FFFFFF;
+  font-family: var(--db-font-mono);
+  font-size: 0.66rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+  letter-spacing: 0.04em;
+}
+
+.db-bogo-note--applied .db-bogo-note__badge {
+  background: #059669;
+}
+
+.db-bogo-claim-btn {
+  width: 100%;
+  padding: 7px 10px;
+  border-radius: 7px;
+  border: none;
+  background: linear-gradient(180deg, #E02424 0%, #B91C1C 100%);
+  color: #FFFFFF;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.db-bogo-claim-btn:hover {
+  opacity: 0.92;
+}
+
+.db-cart-row__title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.db-cart-row__strike {
+  text-decoration: line-through;
+  color: var(--db-muted);
+  font-weight: 400;
+  font-size: 0.82rem;
+}
+
+.db-cart-row__final {
+  color: #C81E1E;
+  font-weight: 700;
+}
+
+.db-cart-row__bogo-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: #FEE2E2;
+  color: #B91C1C;
+  font-family: var(--db-font-mono);
+  font-size: 0.66rem;
+  font-weight: 700;
+}
+
+.db-cart-row__controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.db-cart-qty {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--db-border-strong);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--db-bg);
+}
+
+.db-cart-qty__btn {
+  width: 24px;
+  height: 22px;
+  border: none;
+  background: transparent;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--db-text);
+}
+
+.db-cart-qty__btn:hover {
+  background: var(--db-well);
+}
+
+.db-cart-qty__val {
+  min-width: 22px;
+  text-align: center;
+  font-family: var(--db-font-mono);
+  font-size: 0.76rem;
+  font-weight: 600;
 }
 
 .db-checkout-btn {
@@ -957,5 +1215,8 @@ button, input, select {
   .db-product-grid {
     grid-template-columns: 1fr;
     gap: 24px;
+  }
+  .db-bogo-header-pill__text {
+    display: none;
   }
 }

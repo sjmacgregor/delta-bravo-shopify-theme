@@ -17,10 +17,17 @@
       <span class="db-logo__name">DELTA BRAVO</span>
     </a>
 
-    <button type="button" class="db-cart-btn" id="db-cart-btn">
-      <span>Cart</span>
-      <span class="db-cart-btn__count" id="db-cart-count">{{ cart.item_count | default: 0 }}</span>
-    </button>
+    <div class="db-header__right">
+      <div class="db-bogo-header-pill" title="Buy One Get One Free on the first 10 items you buy">
+        <span class="db-bogo-header-pill__tag">BOGO DEAL</span>
+        <span class="db-bogo-header-pill__text">Buy 1 Get 1 Free · First 10 Items</span>
+      </div>
+
+      <button type="button" class="db-cart-btn" id="db-cart-btn">
+        <span>Cart</span>
+        <span class="db-cart-btn__count" id="db-cart-count">{{ cart.item_count | default: 0 }}</span>
+      </button>
+    </div>
   </header>
 
   <!-- VIEW 1: HOME PAGE (LOGO + SEARCH BAR + FLOATING STREAM) -->
@@ -49,6 +56,12 @@
             <path d="M 284.00 8.00 L 300.00 80.00 L 318.00 80.00 L 331.00 39.00 L 344.00 80.00 L 362.00 80.00 L 378.00 8.00 L 358.00 8.00 L 350.00 54.00 L 338.00 18.00 L 324.00 18.00 L 312.00 54.00 L 304.00 8.00 Z"/>
           </g>
         </svg>
+      </div>
+
+      <!-- BOGO Promo Banner on Home Page -->
+      <div class="db-bogo-home-banner" role="region" aria-label="Buy One Get One Free Deal">
+        <span class="db-bogo-home-banner__badge">SPECIAL DEAL</span>
+        <span class="db-bogo-home-banner__copy"><strong>Buy 1 Get 1 FREE</strong> on the first 10 items you buy</span>
       </div>
 
       <!-- Search Bar above stream images -->
@@ -106,6 +119,11 @@
             <span class="db-product-price" id="db-product-price">$11</span>
           </div>
 
+          <div class="db-product-bogo-box" id="db-product-bogo-box">
+            <span class="db-product-bogo-box__pill">BUY 1 GET 1 FREE</span>
+            <span class="db-product-bogo-box__text">First 10 items you buy get a free holster — discount applied automatically in cart.</span>
+          </div>
+
           <div class="db-field">
             <label class="db-label" for="db-select-tool">Tool</label>
             <select id="db-select-tool" class="db-select"></select>
@@ -136,11 +154,22 @@
       <span>Cart</span>
       <button type="button" class="db-drawer__close" id="db-drawer-close">✕</button>
     </div>
+    <div class="db-drawer__bogo" id="db-cart-bogo-banner"></div>
     <div class="db-drawer__list" id="db-cart-list"></div>
     <div class="db-drawer__foot">
-      <div class="db-drawer__total">
-        <span>Total</span>
-        <span id="db-cart-total">$0</span>
+      <div class="db-drawer__summary" id="db-cart-summary">
+        <div class="db-drawer__line" id="db-cart-subtotal-row" style="display:none;">
+          <span>Subtotal</span>
+          <span id="db-cart-subtotal">$0</span>
+        </div>
+        <div class="db-drawer__line db-drawer__line--discount" id="db-cart-discount-row" style="display:none;">
+          <span id="db-cart-discount-label">BOGO Deal (Free)</span>
+          <span id="db-cart-discount">-$0</span>
+        </div>
+        <div class="db-drawer__total">
+          <span>Total</span>
+          <span id="db-cart-total">$0</span>
+        </div>
       </div>
       <button type="button" class="db-checkout-btn">Checkout</button>
     </div>
