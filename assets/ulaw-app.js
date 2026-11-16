@@ -614,7 +614,7 @@
               'Part Number': tool.mpn,
               'Channel': cfg.pouch.name,
               'Holster Spec': `ULAW ${cfg.clampMark} · ${cfg.channelMark}`,
-              'Promo Deal': `First Order Buy 1 Get 1 Free (${promo.freeCount}/1 Free ULAW Applied)`
+              'Promo Deal': `Huge Deal: Buy 1 Get 1 Free (${promo.freeCount}/1 Free ULAW Applied)`
             }
           }]
         })
@@ -645,7 +645,7 @@
     if (discountRowEl && discountEl) {
       discountRowEl.style.display = promo.discount > 0 ? 'flex' : 'none';
       if (discountLabelEl) {
-        discountLabelEl.textContent = 'First Order BOGO (1 Free)';
+        discountLabelEl.textContent = 'Huge Deal (1 Free)';
       }
       discountEl.textContent = `-${formatPrice(promo.discount)}`;
     }
@@ -658,16 +658,16 @@
       if (count === 0) {
         bannerEl.innerHTML = `
           <div class="db-bogo-note">
-            <span class="db-bogo-note__badge">FIRST ORDER</span>
-            <span><strong>Buy One Get One Free</strong> on your first order (limit 1 free ULAW)!</span>
+            <span class="db-bogo-note__badge">HUGE DEAL</span>
+            <span><strong>Buy One Get One Free</strong>!</span>
           </div>
         `;
       } else if (promo.canClaimFreeSecond) {
         bannerEl.innerHTML = `
           <div class="db-bogo-note db-bogo-note--action">
             <div class="db-bogo-note__top">
-              <span class="db-bogo-note__badge">1 FREE UNLOCKED</span>
-              <span>First Order Deal: Your 2nd ULAW is <strong>FREE</strong>!</span>
+              <span class="db-bogo-note__badge">HUGE DEAL</span>
+              <span>Your 2nd ULAW is <strong>FREE</strong>!</span>
             </div>
             <button type="button" class="db-bogo-claim-btn" id="db-bogo-claim-btn">
               + Add 1 Free ULAW ($0)
@@ -684,8 +684,8 @@
       } else {
         bannerEl.innerHTML = `
           <div class="db-bogo-note db-bogo-note--applied">
-            <span class="db-bogo-note__badge">BOGO APPLIED</span>
-            <span><strong>1 FREE ULAW</strong> applied (-${formatPrice(promo.discount)}) · Limit 1 free on first order</span>
+            <span class="db-bogo-note__badge">HUGE DEAL APPLIED</span>
+            <span><strong>1 FREE ULAW</strong> applied (-${formatPrice(promo.discount)})</span>
           </div>
         `;
       }
