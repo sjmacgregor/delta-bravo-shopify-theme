@@ -892,13 +892,20 @@ button, input, select {
   padding: 12px;
   border: 1px solid var(--db-border);
   border-radius: 10px;
+  background: var(--db-surface);
 }
 
 .db-cart-row__img {
-  width: 56px;
-  height: 56px;
-  border-radius: 6px;
-  object-fit: cover;
+  width: 64px;
+  height: 76px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  border: 1px solid var(--db-border);
+  background: #DFDCE0;
+  padding: 4px;
+  object-fit: contain;
+  object-position: center;
+  display: block;
 }
 
 .db-cart-row__info {

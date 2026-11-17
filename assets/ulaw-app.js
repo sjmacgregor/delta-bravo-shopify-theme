@@ -569,17 +569,43 @@
     };
   }
 
+  function resolveCartItemImage(item) {
+    if (!item) return TOOLS[0].image;
+    const matchedTool = TOOLS.find(t =>
+      (item.toolId && t.id === item.toolId) ||
+      (item.mpn && t.mpn === item.mpn) ||
+      (item.model && t.model === item.model && (!item.brand || t.brand === item.brand))
+    );
+    if (matchedTool && matchedTool.category === 'Screwdrivers' && (!item.image || item.image.includes('pica-dry-ulaw'))) {
+      return matchedTool.image;
+    }
+    if (item.image && typeof item.image === 'string') {
+      if (window.ULAW_ASSET_URLS && item.image.startsWith('assets/images/')) {
+        const fileName = item.image.replace(/^assets\/images\//, '');
+        if (window.ULAW_ASSET_URLS[fileName]) {
+          return window.ULAW_ASSET_URLS[fileName];
+        }
+      }
+      return item.image;
+    }
+    return matchedTool ? matchedTool.image : TOOLS[0].image;
+  }
+
   function addToCart() {
     const cfg = getActiveConfig();
     const { tool } = cfg;
     const key = `${cfg.sku}-${state.pouchId}`;
+    const activeImgSrc = state.customImage || tool.image;
     const existing = state.cart.find(i => i.key === key);
 
     if (existing) {
       existing.qty += 1;
+      existing.toolId = tool.id;
+      existing.image = activeImgSrc;
     } else {
       state.cart.push({
         key,
+        toolId: tool.id,
         title: 'ULAW Holster',
         brand: tool.brand,
         model: tool.model,
@@ -588,7 +614,7 @@
         stamp: `ULAW ${cfg.clampMark} · ${cfg.channelMark}`,
         price: cfg.unitPrice,
         qty: 1,
-        image: tool.image
+        image: activeImgSrc
       });
     }
 
@@ -701,6 +727,7 @@
 
     listEl.innerHTML = state.cart.map((item, idx) => {
       const rb = promo.rowBreakdown[idx];
+      const resolvedImg = resolveCartItemImage(item);
       const priceHtml = rb.rowFreeQty > 0
         ? `<span class="db-cart-row__strike">${formatPrice(rb.rowSubtotal)}</span> <span class="db-cart-row__final">${rb.rowTotal === 0 ? 'FREE' : formatPrice(rb.rowTotal)}</span>`
         : `${formatPrice(rb.rowSubtotal)}`;
@@ -710,7 +737,7 @@
 
       return `
         <div class="db-cart-row">
-          <img class="db-cart-row__img" src="${item.image}" alt="${escapeHtml(item.model)}">
+          <img class="db-cart-row__img" src="${resolvedImg}" alt="${escapeHtml(item.model)}">
           <div class="db-cart-row__info">
             <div class="db-cart-row__title">
               <span>${escapeHtml(item.title)} — ${priceHtml}</span>
